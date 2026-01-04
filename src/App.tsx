@@ -2,24 +2,105 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+
+// Layouts
+import { AppLayout } from "@/components/layout/AppLayout";
+
+// Auth Pages
+import { LoginPage } from "@/pages/auth/LoginPage";
+import { RegisterPage } from "@/pages/auth/RegisterPage";
+
+// Student Pages
+import { ExplorePage } from "@/pages/student/ExplorePage";
+import { LessonsPage } from "@/pages/student/LessonsPage";
+import { InstructorProfilePage } from "@/pages/student/InstructorProfilePage";
+
+// Instructor Pages
+import { SchedulePage } from "@/pages/instructor/SchedulePage";
+import { RequestsPage } from "@/pages/instructor/RequestsPage";
+import { EarningsPage } from "@/pages/instructor/EarningsPage";
+
+// Shared Pages
+import { ProfilePage } from "@/pages/shared/ProfilePage";
+import { NotificationsPage } from "@/pages/shared/NotificationsPage";
+
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
+  
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return <>{children}</>;
+}
+
+function AppRoutes() {
+  const { isAuthenticated, userRole } = useAuth();
+
+  return (
+    <Routes>
+      {/* Auth Routes */}
+      <Route path="/login" element={
+        isAuthenticated 
+          ? <Navigate to={userRole === 'instructor' ? '/schedule' : '/explore'} replace />
+          : <LoginPage />
+      } />
+      <Route path="/register" element={
+        isAuthenticated 
+          ? <Navigate to={userRole === 'instructor' ? '/schedule' : '/explore'} replace />
+          : <RegisterPage />
+      } />
+
+      {/* Protected App Routes */}
+      <Route element={
+        <ProtectedRoute>
+          <AppLayout />
+        </ProtectedRoute>
+      }>
+        {/* Student Routes */}
+        <Route path="/explore" element={<ExplorePage />} />
+        <Route path="/lessons" element={<LessonsPage />} />
+        <Route path="/instructor/:id" element={<InstructorProfilePage />} />
+
+        {/* Instructor Routes */}
+        <Route path="/schedule" element={<SchedulePage />} />
+        <Route path="/requests" element={<RequestsPage />} />
+        <Route path="/earnings" element={<EarningsPage />} />
+
+        {/* Shared Routes */}
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
+      </Route>
+
+      {/* Redirects */}
+      <Route path="/" element={
+        isAuthenticated 
+          ? <Navigate to={userRole === 'instructor' ? '/schedule' : '/explore'} replace />
+          : <Navigate to="/login" replace />
+      } />
+
+      {/* 404 */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <AuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
