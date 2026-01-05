@@ -137,7 +137,12 @@ function LessonCard({ lesson, style }: LessonCardProps) {
           <div className="flex gap-2 mt-4">
             {(lesson.status === 'pending' || lesson.status === 'confirmed') && (
               <>
-                <Button variant="outline" size="sm" className="flex-1">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => window.location.href = `/chat/${lesson.instructorId}`}
+                >
                   <MessageCircle className="h-4 w-4 mr-1" />
                   Chat
                 </Button>

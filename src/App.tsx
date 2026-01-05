@@ -25,6 +25,8 @@ import { EarningsPage } from "@/pages/instructor/EarningsPage";
 // Shared Pages
 import { ProfilePage } from "@/pages/shared/ProfilePage";
 import { NotificationsPage } from "@/pages/shared/NotificationsPage";
+import { ConversationsPage } from "@/pages/shared/ConversationsPage";
+import { ChatPage } from "@/pages/shared/ChatPage";
 
 import NotFound from "./pages/NotFound";
 
@@ -76,6 +78,8 @@ function AppRoutes() {
         {/* Shared Routes */}
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/notifications" element={<NotificationsPage />} />
+        <Route path="/conversations" element={<ConversationsPage />} />
+        <Route path="/chat/:id" element={<ChatPage />} />
       </Route>
 
       {/* Redirects */}
