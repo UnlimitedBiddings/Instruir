@@ -3,12 +3,14 @@ import { Search, MapPin, SlidersHorizontal, List, Map } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { InstructorCard } from '@/components/instructor/InstructorCard';
+import { InstructorMap } from '@/components/map/InstructorMap';
 import { mockInstructors } from '@/data/mockData';
-import { cn } from '@/lib/utils';
+import { Instructor } from '@/types';
 
 export function ExplorePage() {
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedInstructor, setSelectedInstructor] = useState<Instructor | null>(null);
 
   const filteredInstructors = mockInstructors.filter(instructor =>
     instructor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -108,22 +110,27 @@ export function ExplorePage() {
         </div>
       ) : (
         <div className="relative h-[calc(100vh-220px)]">
-          {/* Map placeholder */}
-          <div className="absolute inset-0 bg-muted flex items-center justify-center">
-            <div className="text-center">
-              <Map className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground">
-                Mapa será integrado com Google Maps
-              </p>
-            </div>
-          </div>
+          {/* Google Maps */}
+          <InstructorMap
+            instructors={filteredInstructors}
+            onSelectInstructor={setSelectedInstructor}
+            selectedInstructorId={selectedInstructor?.id}
+          />
 
           {/* Floating Cards */}
           <div className="absolute bottom-4 left-0 right-0 px-4">
             <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
-              {filteredInstructors.slice(0, 3).map((instructor) => (
-                <div key={instructor.id} className="flex-shrink-0 w-72">
-                  <InstructorCard instructor={instructor} compact />
+              {filteredInstructors.map((instructor) => (
+                <div 
+                  key={instructor.id} 
+                  className="flex-shrink-0 w-72"
+                  onClick={() => setSelectedInstructor(instructor)}
+                >
+                  <InstructorCard 
+                    instructor={instructor} 
+                    compact 
+                    isSelected={instructor.id === selectedInstructor?.id}
+                  />
                 </div>
               ))}
             </div>

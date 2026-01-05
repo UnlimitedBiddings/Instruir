@@ -7,14 +7,18 @@ import { cn } from '@/lib/utils';
 interface InstructorCardProps {
   instructor: Instructor;
   compact?: boolean;
+  isSelected?: boolean;
 }
 
-export function InstructorCard({ instructor, compact = false }: InstructorCardProps) {
+export function InstructorCard({ instructor, compact = false, isSelected = false }: InstructorCardProps) {
   const navigate = useNavigate();
 
   return (
     <div 
-      className="instructor-card cursor-pointer"
+      className={cn(
+        "instructor-card cursor-pointer transition-all",
+        isSelected && "ring-2 ring-primary shadow-lg"
+      )}
       onClick={() => navigate(`/instructor/${instructor.id}`)}
     >
       <div className="flex gap-4">

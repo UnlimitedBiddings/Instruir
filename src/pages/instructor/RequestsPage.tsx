@@ -145,7 +145,7 @@ function RequestCard({ request, onAccept, onReject, style }: RequestCardProps) {
               className="flex-1"
               onClick={(e) => {
                 e.stopPropagation();
-                // Open chat
+                window.location.href = `/chat/${request.studentId}`;
               }}
             >
               <MessageCircle className="h-4 w-4 mr-1" />

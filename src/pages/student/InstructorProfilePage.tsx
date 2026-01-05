@@ -205,7 +205,12 @@ export function InstructorProfilePage() {
       {/* Fixed Bottom CTA */}
       <div className="fixed bottom-20 left-0 right-0 p-4 bg-gradient-to-t from-background via-background to-transparent">
         <div className="flex gap-3">
-          <Button variant="outline" size="lg" className="flex-shrink-0">
+          <Button 
+            variant="outline" 
+            size="lg" 
+            className="flex-shrink-0"
+            onClick={() => navigate(`/chat/${instructor.id}`)}
+          >
             <MessageCircle className="h-5 w-5" />
           </Button>
           <Button variant="hero" size="lg" className="flex-1">
