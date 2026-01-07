@@ -3,9 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGoogleMaps } from '@/hooks/useGoogleMaps';
 import { Instructor } from '@/types';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Key, MapPin, AlertCircle } from 'lucide-react';
+import { MapPin, Navigation, Locate, Layers } from 'lucide-react';
 
 interface InstructorMapProps {
   instructors: Instructor[];
@@ -13,9 +12,26 @@ interface InstructorMapProps {
   selectedInstructorId?: string;
 }
 
+// API Key do Google Maps
+const GOOGLE_MAPS_API_KEY = 'AIzaSyA1-NrREEo8bBiDNK_TwpLvTvE9QrDcioo';
+
 // Center of Av. Paulista
 const CENTER = { lat: -23.5629, lng: -46.6544 };
 const RADIUS_KM = 10;
+
+// Custom map styles for a modern dark look
+const mapStyles = [
+  { elementType: 'geometry', stylers: [{ color: '#1a1a2e' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a2e' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#8b8b8b' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#2d2d44' }] },
+  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#1a1a2e' }] },
+  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#3d3d5c' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#0e0e1a' }] },
+  { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#1e3a2f' }] },
+  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+];
 
 export function InstructorMap({ 
   instructors, 
@@ -27,19 +43,34 @@ export function InstructorMap({
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const circleRef = useRef<google.maps.Circle | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
 
-  const [apiKey, setApiKey] = useState(() => 
-    localStorage.getItem('GOOGLE_MAPS_API_KEY') || ''
-  );
-  const [inputKey, setInputKey] = useState(apiKey);
-  const [showKeyInput, setShowKeyInput] = useState(!apiKey);
+  const { isLoaded, loadError } = useGoogleMaps(GOOGLE_MAPS_API_KEY);
 
-  const { isLoaded, loadError } = useGoogleMaps(apiKey || null);
+  const handleCenterMap = () => {
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.panTo(CENTER);
+      mapInstanceRef.current.setZoom(13);
+    }
+  };
 
-  const handleSaveApiKey = () => {
-    localStorage.setItem('GOOGLE_MAPS_API_KEY', inputKey);
-    setApiKey(inputKey);
-    setShowKeyInput(false);
+  const handleLocateUser = () => {
+    if (!navigator.geolocation || !mapInstanceRef.current) return;
+    
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userPos = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+        };
+        mapInstanceRef.current?.panTo(userPos);
+        mapInstanceRef.current?.setZoom(15);
+        setIsLocating(false);
+      },
+      () => setIsLocating(false),
+      { enableHighAccuracy: true, timeout: 5000 }
+    );
   };
 
   // Initialize map
@@ -51,28 +82,22 @@ export function InstructorMap({
       zoom: 13,
       mapId: 'drivmatch-map',
       disableDefaultUI: true,
-      zoomControl: true,
+      zoomControl: false,
       gestureHandling: 'greedy',
-      styles: [
-        {
-          featureType: 'poi',
-          elementType: 'labels',
-          stylers: [{ visibility: 'off' }],
-        },
-      ],
+      styles: mapStyles,
     });
 
     mapInstanceRef.current = map;
 
-    // Add 10km radius circle
+    // Add radius circle with gradient effect
     const circle = new google.maps.Circle({
       map,
       center: CENTER,
       radius: RADIUS_KM * 1000,
-      fillColor: 'hsl(var(--primary))',
-      fillOpacity: 0.08,
-      strokeColor: 'hsl(var(--primary))',
-      strokeOpacity: 0.3,
+      fillColor: '#6366f1',
+      fillOpacity: 0.06,
+      strokeColor: '#6366f1',
+      strokeOpacity: 0.25,
       strokeWeight: 2,
     });
 
@@ -97,25 +122,31 @@ export function InstructorMap({
     instructors.forEach((instructor) => {
       const isSelected = instructor.id === selectedInstructorId;
 
-      // Create custom marker content
+      // Create custom marker content with modern design
       const markerContent = document.createElement('div');
-      markerContent.className = `
-        flex flex-col items-center cursor-pointer transition-transform
-        ${isSelected ? 'scale-110 z-10' : 'hover:scale-105'}
-      `;
+      markerContent.className = 'instructor-marker-container';
       
       markerContent.innerHTML = `
-        <div class="relative">
-          <img 
-            src="${instructor.avatar}" 
-            alt="${instructor.name}"
-            class="w-12 h-12 rounded-full border-3 object-cover shadow-lg
-              ${isSelected ? 'border-primary ring-2 ring-primary/30' : 'border-white'}"
-          />
-          <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 
-            bg-primary text-primary-foreground text-xs font-bold 
-            px-1.5 py-0.5 rounded-full whitespace-nowrap shadow">
-            R$${instructor.pricePerHour}
+        <div class="relative group cursor-pointer transition-all duration-300 ${isSelected ? 'scale-110' : 'hover:scale-105'}">
+          <div class="absolute -inset-2 bg-gradient-to-r from-primary/40 to-primary/20 rounded-full blur-lg opacity-0 group-hover:opacity-100 transition-opacity ${isSelected ? 'opacity-100' : ''}" style="animation: pulse 2s infinite;"></div>
+          <div class="relative">
+            <div class="w-14 h-14 rounded-full overflow-hidden border-3 shadow-xl ${isSelected ? 'border-primary ring-4 ring-primary/30' : 'border-white/90'}" style="box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
+              <img 
+                src="${instructor.avatar}" 
+                alt="${instructor.name}"
+                class="w-full h-full object-cover"
+              />
+            </div>
+            <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-gradient-to-r from-primary to-primary/80 text-white text-xs font-bold px-2.5 py-1 rounded-full whitespace-nowrap shadow-lg" style="font-size: 11px;">
+              R$${instructor.pricePerHour}/h
+            </div>
+            ${instructor.verified ? `
+              <div class="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white">
+                <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+            ` : ''}
           </div>
         </div>
       `;
@@ -152,71 +183,19 @@ export function InstructorMap({
     }
   }, [selectedInstructorId, instructors]);
 
-  if (showKeyInput || !apiKey) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full bg-muted/50 p-6">
-        <div className="bg-card rounded-2xl p-6 shadow-lg max-w-md w-full">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-primary/10 rounded-xl">
-              <Key className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h3 className="font-display font-semibold">Chave do Google Maps</h3>
-              <p className="text-sm text-muted-foreground">
-                Insira sua API key para visualizar o mapa
-              </p>
-            </div>
-          </div>
-          
-          <Input
-            type="password"
-            placeholder="AIzaSy..."
-            value={inputKey}
-            onChange={(e) => setInputKey(e.target.value)}
-            className="mb-3"
-          />
-          
-          <Button 
-            onClick={handleSaveApiKey} 
-            className="w-full"
-            disabled={!inputKey.trim()}
-          >
-            Salvar e carregar mapa
-          </Button>
-
-          <p className="text-xs text-muted-foreground mt-4 text-center">
-            Obtenha sua chave em{' '}
-            <a 
-              href="https://console.cloud.google.com/google/maps-apis" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              Google Cloud Console
-            </a>
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   if (loadError) {
     return (
-      <div className="flex flex-col items-center justify-center h-full bg-muted/50 p-6">
-        <div className="bg-destructive/10 rounded-2xl p-6 text-center max-w-md">
-          <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-          <h3 className="font-display font-semibold mb-2">Erro ao carregar mapa</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Verifique se a chave API está correta e se a API Maps JavaScript está ativada.
+      <div className="flex flex-col items-center justify-center h-full bg-gradient-to-b from-muted/80 to-muted p-6">
+        <div className="bg-card rounded-3xl p-8 text-center max-w-sm shadow-2xl border border-border/50">
+          <div className="w-16 h-16 bg-destructive/10 rounded-2xl flex items-center justify-center mx-auto mb-5">
+            <MapPin className="h-8 w-8 text-destructive" />
+          </div>
+          <h3 className="font-display font-bold text-xl mb-2">Erro ao carregar mapa</h3>
+          <p className="text-sm text-muted-foreground mb-5">
+            Verifique sua conexão ou tente novamente mais tarde.
           </p>
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              setShowKeyInput(true);
-              setInputKey('');
-            }}
-          >
-            Inserir nova chave
+          <Button onClick={() => window.location.reload()} className="w-full">
+            Tentar novamente
           </Button>
         </div>
       </div>
@@ -225,39 +204,80 @@ export function InstructorMap({
 
   if (!isLoaded) {
     return (
-      <div className="flex items-center justify-center h-full bg-muted/50">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-muted-foreground">Carregando mapa...</p>
+      <div className="flex items-center justify-center h-full bg-gradient-to-b from-muted/50 to-muted">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-primary/30 rounded-full" />
+            <div className="absolute inset-0 w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          </div>
+          <div className="text-center">
+            <p className="font-medium text-foreground">Carregando mapa</p>
+            <p className="text-sm text-muted-foreground">Preparando visualização...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="relative h-full">
+    <div className="relative h-full overflow-hidden">
+      {/* Map Container */}
       <div ref={mapRef} className="absolute inset-0" />
       
-      {/* Legend */}
-      <div className="absolute top-4 left-4 bg-card/95 backdrop-blur rounded-xl p-3 shadow-lg">
-        <div className="flex items-center gap-2 text-sm">
-          <MapPin className="h-4 w-4 text-primary" />
-          <span className="text-muted-foreground">
-            {instructors.length} instrutores em {RADIUS_KM}km
-          </span>
+      {/* Top Gradient Overlay */}
+      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-background/80 via-background/40 to-transparent pointer-events-none" />
+      
+      {/* Stats Card */}
+      <div className="absolute top-4 left-4 right-4">
+        <div className="bg-card/90 backdrop-blur-xl rounded-2xl p-4 shadow-2xl border border-white/10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                <MapPin className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold">{instructors.length} instrutores</p>
+                <p className="text-xs text-muted-foreground">em até {RADIUS_KM}km de você</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+              <span className="text-xs text-muted-foreground">Ao vivo</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Change API Key button */}
-      <Button
-        variant="outline"
-        size="sm"
-        className="absolute top-4 right-4 bg-card/95 backdrop-blur"
-        onClick={() => setShowKeyInput(true)}
-      >
-        <Key className="h-4 w-4 mr-1" />
-        Alterar chave
-      </Button>
+      {/* Map Controls */}
+      <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+        <Button
+          variant="secondary"
+          size="icon"
+          className="w-11 h-11 rounded-xl bg-card/90 backdrop-blur-xl shadow-xl border border-white/10 hover:bg-card"
+          onClick={handleLocateUser}
+          disabled={isLocating}
+        >
+          <Locate className={`h-5 w-5 ${isLocating ? 'animate-pulse text-primary' : ''}`} />
+        </Button>
+        <Button
+          variant="secondary"
+          size="icon"
+          className="w-11 h-11 rounded-xl bg-card/90 backdrop-blur-xl shadow-xl border border-white/10 hover:bg-card"
+          onClick={handleCenterMap}
+        >
+          <Navigation className="h-5 w-5" />
+        </Button>
+        <Button
+          variant="secondary"
+          size="icon"
+          className="w-11 h-11 rounded-xl bg-card/90 backdrop-blur-xl shadow-xl border border-white/10 hover:bg-card"
+        >
+          <Layers className="h-5 w-5" />
+        </Button>
+      </div>
+
+      {/* Bottom Gradient Overlay */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background via-background/60 to-transparent pointer-events-none" />
     </div>
   );
 }
