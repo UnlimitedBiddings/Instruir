@@ -118,12 +118,12 @@ export function ExplorePage() {
           />
 
           {/* Floating Cards */}
-          <div className="absolute bottom-4 left-0 right-0 px-4">
-            <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2">
-              {filteredInstructors.map((instructor) => (
+          <div className="absolute bottom-6 left-0 right-0 px-4 z-20">
+            <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2 snap-x snap-mandatory">
+              {filteredInstructors.slice(0, 8).map((instructor) => (
                 <div 
                   key={instructor.id} 
-                  className="flex-shrink-0 w-72"
+                  className="flex-shrink-0 w-72 snap-start"
                   onClick={() => setSelectedInstructor(instructor)}
                 >
                   <InstructorCard 
