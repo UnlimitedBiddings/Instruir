@@ -4,7 +4,7 @@ import { Instructor } from '@/types';
 import { RatingStars } from '@/components/common/RatingStars';
 import { cn } from '@/lib/utils';
 
-interface InstructorCardProps {
+export interface InstructorCardProps {
   instructor: Instructor;
   compact?: boolean;
   isSelected?: boolean;
