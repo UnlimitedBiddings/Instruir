@@ -186,19 +186,21 @@
     @apply bg-muted animate-pulse rounded;
   }
 
-  /* Instructor Card */
+  /* Instructor Card - Enhanced */
   .instructor-card {
-    @apply card-elevated p-4 transition-all duration-300 hover:scale-[1.02];
+    @apply bg-card rounded-2xl p-4 transition-all duration-300;
     box-shadow: var(--shadow-card);
+    border: 1px solid transparent;
   }
 
   .instructor-card:hover {
     box-shadow: var(--shadow-elevated);
+    border-color: hsl(var(--primary) / 0.1);
   }
 
-  /* Price Tag */
+  /* Price Tag - Enhanced */
   .price-tag {
-    @apply bg-primary text-primary-foreground font-bold px-3 py-1.5 rounded-lg text-sm;
+    @apply bg-gradient-to-r from-primary to-primary/90 text-primary-foreground font-bold px-3 py-1.5 rounded-lg text-sm shadow-md;
   }
 
   /* Availability Dot */
@@ -208,10 +210,41 @@
 
   .availability-dot.available {
     @apply bg-success;
+    box-shadow: 0 0 8px hsl(var(--success) / 0.5);
   }
 
   .availability-dot.busy {
     @apply bg-destructive;
+  }
+
+  /* Interactive elements */
+  .interactive {
+    @apply transition-all duration-200 cursor-pointer;
+  }
+
+  .interactive:hover {
+    @apply scale-[1.02];
+  }
+
+  .interactive:active {
+    @apply scale-[0.98];
+  }
+
+  /* Shimmer loading effect */
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted-foreground) / 0.1) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
   }
 }
 
