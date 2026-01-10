@@ -43,7 +43,7 @@ export function LoginPage() {
               <Car className="h-8 w-8" />
             </div>
             <h1 className="font-display text-2xl font-bold">
-              DrivMatch
+              Instruir
             </h1>
           </div>
           

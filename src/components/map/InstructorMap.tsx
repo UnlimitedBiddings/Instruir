@@ -215,7 +215,7 @@ export function InstructorMap({
     const map = new google.maps.Map(mapRef.current, {
       center: CENTER,
       zoom: 13,
-      mapId: 'drivmatch-map',
+      mapId: 'instruir-map',
       disableDefaultUI: true,
       zoomControl: false,
       gestureHandling: 'greedy',

@@ -83,7 +83,7 @@ export function RegisterPage() {
             <div className="p-2 bg-primary/10 rounded-xl">
               <Car className="h-6 w-6 text-primary" />
             </div>
-            <span className="font-display text-xl font-bold">DrivMatch</span>
+            <span className="font-display text-xl font-bold">Instruir</span>
           </div>
 
           {step === 1 && (
