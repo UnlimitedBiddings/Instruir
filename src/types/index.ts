@@ -1,4 +1,6 @@
-export type UserRole = 'student' | 'instructor';
+export type UserRole = 'student' | 'instructor' | 'school_admin';
+
+export type ProviderType = 'independent' | 'school';
 
 export interface User {
   id: string;
@@ -16,6 +18,39 @@ export interface Student extends User {
   upcomingLessons: number;
 }
 
+export interface DrivingSchool {
+  id: string;
+  name: string;
+  cnpj: string;
+  logo?: string;
+  description: string;
+  address: string;
+  city: string;
+  phone: string;
+  email: string;
+  rating: number;
+  reviewCount: number;
+  verified: boolean;
+  createdAt: Date;
+  // Package offerings
+  packages?: LessonPackage[];
+  // Instructors affiliated with this school
+  instructorIds?: string[];
+}
+
+export interface LessonPackage {
+  id: string;
+  schoolId: string;
+  name: string;
+  description: string;
+  totalLessons: number;
+  priceTotal: number;
+  pricePerLesson: number;
+  validityDays: number; // Package validity in days
+  includes: string[]; // What's included (e.g., "Material didático", "Exame simulado")
+  popular?: boolean;
+}
+
 export interface Instructor extends User {
   role: 'instructor';
   bio: string;
@@ -29,6 +64,11 @@ export interface Instructor extends User {
   verified: VerificationStatus;
   totalLessons: number;
   experience: number; // years
+  // B2B2C fields - school affiliation (optional for backward compatibility)
+  providerType?: ProviderType;
+  schoolId?: string; // If affiliated with a driving school
+  school?: DrivingSchool; // Populated school data
+  employmentType?: 'clt' | 'autonomous'; // Employment relationship with school
 }
 
 export interface Vehicle {
@@ -76,6 +116,9 @@ export interface Lesson {
   notes?: string;
   rating?: number;
   review?: string;
+  // B2B2C fields
+  schoolId?: string; // If booked through a school
+  packageId?: string; // If part of a package
 }
 
 export type LessonStatus = 
@@ -105,4 +148,14 @@ export interface Notification {
   read: boolean;
   createdAt: Date;
   data?: Record<string, unknown>;
+}
+
+// Filter types for explore page
+export interface InstructorFilters {
+  priceRange?: [number, number];
+  transmission?: 'manual' | 'automatic' | 'all';
+  providerType?: ProviderType | 'all';
+  minRating?: number;
+  maxDistance?: number;
+  hasAvailabilityToday?: boolean;
 }
