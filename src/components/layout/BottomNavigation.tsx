@@ -35,14 +35,14 @@ export function BottomNavigation() {
     { icon: User, label: 'Perfil', path: '/profile' },
   ];
 
-  const instructorNavItems: NavItem[] = [
+  const professionalNavItems: NavItem[] = [
     { icon: Calendar, label: 'Agenda', path: '/schedule' },
     { icon: Inbox, label: 'Solicitações', path: '/requests' },
     { icon: MessageCircle, label: 'Chat', path: '/conversations', badge: unreadCount },
     { icon: Wallet, label: 'Financeiro', path: '/earnings' },
   ];
 
-  const navItems = userRole === 'instructor' ? instructorNavItems : studentNavItems;
+  const navItems = userRole === 'professional' ? professionalNavItems : studentNavItems;
 
   return (
     <nav className="bottom-nav z-50">

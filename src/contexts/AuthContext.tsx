@@ -21,7 +21,6 @@ interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock data for demo
 const mockStudent: Student = {
   id: '1',
   name: 'João Silva',
@@ -40,33 +39,18 @@ const mockInstructor: Instructor = {
   email: 'carlos@email.com',
   phone: '(11) 98888-8888',
   avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-  role: 'instructor',
+  role: 'professional',
+  category: 'driving_instructor',
   createdAt: new Date(),
-  bio: 'Instrutor com 10 anos de experiência. Especializado em direção defensiva e aulas para iniciantes nervosos.',
+  bio: 'Instrutor com 10 anos de experiência.',
   rating: 4.9,
   reviewCount: 234,
   pricePerHour: 80,
-  vehicle: {
-    model: 'Chevrolet Onix Plus',
-    year: 2024,
-    color: 'Prata',
-    transmission: 'manual',
-    hasAirConditioning: true,
-  },
-  location: {
-    lat: -23.5505,
-    lng: -46.6333,
-    address: 'Av. Paulista, São Paulo',
-    city: 'São Paulo',
-    distance: 2.5,
-  },
+  vehicle: { model: 'Chevrolet Onix Plus', year: 2024, color: 'Prata', transmission: 'manual', hasAirConditioning: true },
+  location: { lat: -23.5505, lng: -46.6333, address: 'Av. Paulista, São Paulo', city: 'São Paulo', distance: 2.5 },
   serviceZones: ['Centro', 'Paulista', 'Pinheiros', 'Vila Mariana'],
   availability: [],
-  verified: {
-    cnh: true,
-    criminalRecord: true,
-    vehicleInspection: true,
-  },
+  verified: { identity: true, background: true, credentials: true, cnh: true, criminalRecord: true, vehicleInspection: true },
   totalLessons: 1250,
   experience: 10,
 };
@@ -75,10 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
 
   const login = useCallback(async (email: string, password: string) => {
-    // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // For demo, use email to determine role
     if (email.includes('instrutor') || email.includes('instructor')) {
       setUser(mockInstructor);
     } else {
@@ -88,38 +69,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = useCallback(async (data: RegisterData) => {
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    if (data.role === 'instructor') {
+    if (data.role === 'professional') {
       setUser({ ...mockInstructor, name: data.name, email: data.email, phone: data.phone });
     } else {
       setUser({ ...mockStudent, name: data.name, email: data.email, phone: data.phone });
     }
   }, []);
 
-  const logout = useCallback(() => {
-    setUser(null);
-  }, []);
+  const logout = useCallback(() => { setUser(null); }, []);
 
   const switchRole = useCallback((role: UserRole) => {
-    if (role === 'instructor') {
-      setUser(mockInstructor);
-    } else {
-      setUser(mockStudent);
-    }
+    if (role === 'professional') { setUser(mockInstructor); } else { setUser(mockStudent); }
   }, []);
 
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        isAuthenticated: !!user,
-        userRole: user?.role ?? null,
-        login,
-        register,
-        logout,
-        switchRole,
-      }}
-    >
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, userRole: user?.role ?? null, login, register, logout, switchRole }}>
       {children}
     </AuthContext.Provider>
   );
@@ -127,8 +91,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (context === undefined) { throw new Error('useAuth must be used within an AuthProvider'); }
   return context;
 }
