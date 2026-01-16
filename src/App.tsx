@@ -50,12 +50,12 @@ function AppRoutes() {
       {/* Auth Routes */}
       <Route path="/login" element={
         isAuthenticated 
-          ? <Navigate to={userRole === 'instructor' ? '/schedule' : '/explore'} replace />
+          ? <Navigate to={userRole === 'professional' ? '/schedule' : '/explore'} replace />
           : <LoginPage />
       } />
       <Route path="/register" element={
         isAuthenticated 
-          ? <Navigate to={userRole === 'instructor' ? '/schedule' : '/explore'} replace />
+          ? <Navigate to={userRole === 'professional' ? '/schedule' : '/explore'} replace />
           : <RegisterPage />
       } />
 
@@ -85,7 +85,7 @@ function AppRoutes() {
       {/* Redirects */}
       <Route path="/" element={
         isAuthenticated 
-          ? <Navigate to={userRole === 'instructor' ? '/schedule' : '/explore'} replace />
+          ? <Navigate to={userRole === 'professional' ? '/schedule' : '/explore'} replace />
           : <Navigate to="/login" replace />
       } />
 
