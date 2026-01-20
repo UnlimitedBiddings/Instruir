@@ -121,7 +121,7 @@ export function RegisterPage() {
                         Sou Aluno
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        Quero encontrar instrutores para aulas de direção
+                        Quero encontrar profissionais para aulas
                       </p>
                     </div>
                     {role === 'student' && (
@@ -135,12 +135,12 @@ export function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setRole('instructor');
+                    setRole('professional');
                     setStep(2);
                   }}
                   className={cn(
                     "w-full p-5 rounded-2xl border-2 text-left transition-all",
-                    role === 'instructor'
+                    role === 'professional'
                       ? "border-primary bg-primary/5"
                       : "border-border hover:border-primary/50 hover:bg-muted/50"
                   )}
@@ -148,19 +148,19 @@ export function RegisterPage() {
                   <div className="flex items-start gap-4">
                     <div className={cn(
                       "p-3 rounded-xl",
-                      role === 'instructor' ? "bg-primary text-primary-foreground" : "bg-muted"
+                      role === 'professional' ? "bg-primary text-primary-foreground" : "bg-muted"
                     )}>
                       <Briefcase className="h-6 w-6" />
                     </div>
                     <div className="flex-1">
                       <h3 className="font-display font-semibold text-lg mb-1">
-                        Sou Instrutor
+                        Sou Profissional
                       </h3>
                       <p className="text-sm text-muted-foreground">
                         Quero oferecer aulas e gerenciar minha agenda
                       </p>
                     </div>
-                    {role === 'instructor' && (
+                    {role === 'professional' && (
                       <div className="p-1 bg-primary rounded-full">
                         <Check className="h-4 w-4 text-primary-foreground" />
                       </div>
@@ -178,7 +178,7 @@ export function RegisterPage() {
               </h2>
               <p className="text-muted-foreground mb-8">
                 {role === 'student' 
-                  ? 'Preencha seus dados para começar a buscar instrutores.'
+                  ? 'Preencha seus dados para começar a buscar profissionais.'
                   : 'Preencha seus dados para começar a receber alunos.'
                 }
               </p>
