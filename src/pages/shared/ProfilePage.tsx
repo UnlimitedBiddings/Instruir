@@ -14,14 +14,14 @@ import {
   Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Instructor } from '@/types';
+import { Professional } from '@/types';
 
 export function ProfilePage() {
   const { user, logout, userRole } = useAuth();
   const navigate = useNavigate();
 
-  const isInstructor = userRole === 'instructor';
-  const instructor = isInstructor ? (user as Instructor) : null;
+  const isProfessional = userRole === 'professional';
+  const professional = isProfessional ? (user as Professional) : null;
 
   const handleLogout = () => {
     logout();
@@ -35,7 +35,7 @@ export function ProfilePage() {
       description: 'Nome, e-mail, telefone',
       onClick: () => {},
     },
-    ...(isInstructor ? [
+    ...(isProfessional ? [
       {
         icon: Car,
         label: 'Meu veículo',
@@ -51,8 +51,8 @@ export function ProfilePage() {
     ] : []),
     {
       icon: CreditCard,
-      label: isInstructor ? 'Dados bancários' : 'Pagamentos',
-      description: isInstructor ? 'Conta para recebimentos' : 'Cartões e histórico',
+      label: isProfessional ? 'Dados bancários' : 'Pagamentos',
+      description: isProfessional ? 'Conta para recebimentos' : 'Cartões e histórico',
       onClick: () => {},
     },
     {
@@ -80,7 +80,7 @@ export function ProfilePage() {
       {/* Header */}
       <div className="bg-card border-b border-border px-4 pt-4 pb-6 safe-area-top">
         <h1 className="font-display text-2xl font-bold mb-6">
-          {isInstructor ? 'Perfil Pro' : 'Meu Perfil'}
+          {isProfessional ? 'Perfil Pro' : 'Meu Perfil'}
         </h1>
 
         {/* Profile Card */}
@@ -94,11 +94,11 @@ export function ProfilePage() {
             <h2 className="font-display text-xl font-bold">{user?.name}</h2>
             <p className="text-muted-foreground">{user?.email}</p>
             
-            {isInstructor && instructor && (
+            {isProfessional && professional && (
               <div className="flex items-center gap-3 mt-2">
                 <div className="flex items-center gap-1">
                   <Star className="h-4 w-4 text-warning fill-warning" />
-                  <span className="font-semibold">{instructor.rating}</span>
+                  <span className="font-semibold">{professional.rating}</span>
                 </div>
                 <div className="flex items-center gap-1 text-muted-foreground">
                   <Shield className="h-4 w-4 text-accent" />
@@ -109,23 +109,23 @@ export function ProfilePage() {
           </div>
         </div>
 
-        {isInstructor && instructor && (
+        {isProfessional && professional && (
           <div className="grid grid-cols-3 gap-3 mt-6">
             <div className="bg-muted/50 rounded-xl p-3 text-center">
               <p className="font-display text-xl font-bold text-primary">
-                {instructor.totalLessons}
+                {professional.totalLessons}
               </p>
               <p className="text-xs text-muted-foreground">Aulas</p>
             </div>
             <div className="bg-muted/50 rounded-xl p-3 text-center">
               <p className="font-display text-xl font-bold text-primary">
-                {instructor.reviewCount}
+                {professional.reviewCount}
               </p>
               <p className="text-xs text-muted-foreground">Avaliações</p>
             </div>
             <div className="bg-muted/50 rounded-xl p-3 text-center">
               <p className="font-display text-xl font-bold text-primary">
-                {instructor.experience}
+                {professional.experience}
               </p>
               <p className="text-xs text-muted-foreground">Anos exp.</p>
             </div>
@@ -182,7 +182,7 @@ export function ProfilePage() {
               Aluno
             </Button>
             <Button
-              variant={userRole === 'instructor' ? 'default' : 'outline'}
+              variant={userRole === 'professional' ? 'default' : 'outline'}
               size="sm"
               className="flex-1"
               onClick={() => {
@@ -190,7 +190,7 @@ export function ProfilePage() {
                 navigate('/login');
               }}
             >
-              Instrutor
+              Profissional
             </Button>
           </div>
         </div>
