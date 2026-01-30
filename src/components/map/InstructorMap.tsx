@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGoogleMaps } from '@/hooks/useGoogleMaps';
-import { Instructor } from '@/types';
+import { Instructor, Company } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -16,12 +16,14 @@ import {
   Star,
   Car,
   Shield,
-  Clock
+  Clock,
+  Building2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface InstructorMapProps {
   instructors: Instructor[];
+  schools?: Company[];
   onSelectInstructor?: (instructor: Instructor) => void;
   selectedInstructorId?: string;
 }
@@ -48,10 +50,12 @@ const mapStyles: google.maps.MapTypeStyle[] = [
 
 export function InstructorMap({ 
   instructors, 
+  schools = [],
   onSelectInstructor,
   selectedInstructorId 
 }: InstructorMapProps) {
   const navigate = useNavigate();
+  const schoolMarkersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
@@ -124,6 +128,7 @@ export function InstructorMap({
 
   const createInfoWindowContent = useCallback((instructor: Instructor): string => {
     const isVerified = instructor.verified?.cnh && instructor.verified?.criminalRecord;
+    const isFromSchool = instructor.providerType === 'company';
     return `
       <div style="
         background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
@@ -144,18 +149,23 @@ export function InstructorMap({
               height: 56px;
               border-radius: 12px;
               object-fit: cover;
-              border: 2px solid #14b8a6;
+              border: 2px solid ${isFromSchool ? '#3b82f6' : '#14b8a6'};
             "
           />
           <div style="flex: 1; min-width: 0;">
             <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
               <span style="font-weight: 700; font-size: 15px; color: white;">${instructor.name}</span>
               ${isVerified ? `
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="#14b8a6">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="${isFromSchool ? '#3b82f6' : '#14b8a6'}">
                   <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
               ` : ''}
             </div>
+            ${isFromSchool ? `
+              <div style="display: inline-block; background: rgba(59, 130, 246, 0.2); color: #60a5fa; font-size: 10px; padding: 2px 8px; border-radius: 4px; margin-bottom: 6px;">
+                Autoescola
+              </div>
+            ` : ''}
             <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 8px;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="#fbbf24">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -185,12 +195,12 @@ export function InstructorMap({
         ">
           <div>
             <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Preço/hora</span>
-            <div style="font-size: 20px; font-weight: 800; color: #14b8a6;">R$ ${instructor.pricePerHour}</div>
+            <div style="font-size: 20px; font-weight: 800; color: ${isFromSchool ? '#3b82f6' : '#14b8a6'};">R$ ${instructor.pricePerHour}</div>
           </div>
           <button 
             onclick="window.location.href='/instructor/${instructor.id}'"
             style="
-              background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+              background: linear-gradient(135deg, ${isFromSchool ? '#3b82f6' : '#14b8a6'} 0%, ${isFromSchool ? '#2563eb' : '#0d9488'} 100%);
               color: white;
               border: none;
               padding: 10px 20px;
@@ -202,6 +212,85 @@ export function InstructorMap({
             "
           >
             Ver Perfil
+          </button>
+        </div>
+      </div>
+    `;
+  }, []);
+
+  const createSchoolInfoWindowContent = useCallback((school: Company): string => {
+    const instructorCount = school.professionalIds?.length || 0;
+    return `
+      <div style="
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        border-radius: 16px;
+        padding: 16px;
+        min-width: 280px;
+        max-width: 320px;
+        color: white;
+        font-family: 'Inter', sans-serif;
+        border: 1px solid rgba(255,255,255,0.1);
+      ">
+        <div style="display: flex; gap: 12px; align-items: flex-start;">
+          <div style="
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #3b82f6;
+            background: #1e293b;
+          ">
+            ${school.logo ? `<img src="${school.logo}" alt="${school.name}" style="width: 100%; height: 100%; object-fit: cover;" />` : ''}
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="display: inline-block; background: rgba(59, 130, 246, 0.2); color: #60a5fa; font-size: 10px; padding: 2px 8px; border-radius: 4px; margin-bottom: 6px;">
+              Autoescola
+            </div>
+            <div style="font-weight: 700; font-size: 15px; color: white; margin-bottom: 4px;">${school.name}</div>
+            <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 8px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#fbbf24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              <span style="color: #fbbf24; font-weight: 600; font-size: 13px;">${school.rating}</span>
+              <span style="color: #94a3b8; font-size: 12px;">(${school.reviewCount} avaliações)</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; color: #94a3b8; font-size: 12px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+              <span>${instructorCount} instrutores disponíveis</span>
+            </div>
+          </div>
+        </div>
+        
+        <div style="
+          margin-top: 12px;
+          padding-top: 12px;
+          border-top: 1px solid rgba(255,255,255,0.1);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        ">
+          <div>
+            <span style="font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;">Pacotes a partir de</span>
+            <div style="font-size: 20px; font-weight: 800; color: #3b82f6;">R$ ${school.packages?.[0]?.priceTotal || 750}</div>
+          </div>
+          <button 
+            onclick="window.location.href='/school/${school.id}'"
+            style="
+              background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+              color: white;
+              border: none;
+              padding: 10px 20px;
+              border-radius: 10px;
+              font-weight: 600;
+              font-size: 13px;
+              cursor: pointer;
+              transition: all 0.2s;
+            "
+          >
+            Ver Pacotes
           </button>
         </div>
       </div>
@@ -251,6 +340,8 @@ export function InstructorMap({
     return () => {
       markersRef.current.forEach((marker) => (marker.map = null));
       markersRef.current = [];
+      schoolMarkersRef.current.forEach((marker) => (marker.map = null));
+      schoolMarkersRef.current = [];
       if (circleRef.current) circleRef.current.setMap(null);
       if (infoWindowRef.current) infoWindowRef.current.close();
       mapInstanceRef.current = null;
@@ -366,6 +457,91 @@ export function InstructorMap({
       markersRef.current.push(marker);
     });
   }, [isLoaded, filteredByPrice, selectedInstructorId, onSelectInstructor, createInfoWindowContent]);
+
+  // Add markers for schools
+  useEffect(() => {
+    if (!isLoaded || !mapInstanceRef.current) return;
+
+    // Clear existing school markers
+    schoolMarkersRef.current.forEach((marker) => (marker.map = null));
+    schoolMarkersRef.current = [];
+
+    schools.forEach((school) => {
+      if (!school.location) return;
+
+      const markerContent = document.createElement('div');
+      markerContent.innerHTML = `
+        <div class="relative group cursor-pointer transform transition-all duration-300 hover:scale-105">
+          <!-- Glow effect -->
+          <div class="absolute -inset-3 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+               style="background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%);"></div>
+          
+          <!-- Main marker -->
+          <div class="relative">
+            <!-- Building icon container -->
+            <div class="relative w-14 h-14 rounded-xl overflow-hidden shadow-2xl transition-all duration-300 flex items-center justify-center"
+                 style="
+                   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                   border: 3px solid rgba(255,255,255,0.9);
+                   box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+                 ">
+              ${school.logo 
+                ? `<img src="${school.logo}" alt="${school.name}" class="w-full h-full object-cover" />`
+                : `<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                   </svg>`
+              }
+            </div>
+            
+            <!-- School badge -->
+            <div class="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2.5 py-1 rounded-full text-white font-bold whitespace-nowrap shadow-lg"
+                 style="
+                   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                   font-size: 10px;
+                   letter-spacing: 0.3px;
+                 ">
+              Autoescola
+            </div>
+            
+            <!-- Verified badge -->
+            ${school.verified ? `
+              <div class="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center shadow-lg"
+                   style="background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%); border: 2px solid white;">
+                <svg class="w-2.5 h-2.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+            ` : ''}
+            
+            <!-- Rating indicator -->
+            <div class="absolute -top-1 -left-1 flex items-center gap-0.5 px-1.5 py-0.5 rounded-full shadow-lg"
+                 style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255,255,255,0.2);">
+              <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="#fbbf24">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              <span class="text-white font-semibold" style="font-size: 9px;">${school.rating}</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const marker = new google.maps.marker.AdvancedMarkerElement({
+        map: mapInstanceRef.current!,
+        position: { lat: school.location.lat, lng: school.location.lng },
+        content: markerContent,
+        title: school.name,
+      });
+
+      marker.addListener('click', () => {
+        if (infoWindowRef.current && mapInstanceRef.current) {
+          infoWindowRef.current.setContent(createSchoolInfoWindowContent(school));
+          infoWindowRef.current.open(mapInstanceRef.current, marker);
+        }
+      });
+
+      schoolMarkersRef.current.push(marker);
+    });
+  }, [isLoaded, schools, createSchoolInfoWindowContent]);
 
   // Pan to selected instructor
   useEffect(() => {

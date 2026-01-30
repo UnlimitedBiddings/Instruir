@@ -16,6 +16,7 @@ import { RegisterPage } from "@/pages/auth/RegisterPage";
 import { ExplorePage } from "@/pages/student/ExplorePage";
 import { LessonsPage } from "@/pages/student/LessonsPage";
 import { InstructorProfilePage } from "@/pages/student/InstructorProfilePage";
+import { SchoolProfilePage } from "@/pages/student/SchoolProfilePage";
 
 // Instructor Pages
 import { SchedulePage } from "@/pages/instructor/SchedulePage";
@@ -69,6 +70,7 @@ function AppRoutes() {
         <Route path="/explore" element={<ExplorePage />} />
         <Route path="/lessons" element={<LessonsPage />} />
         <Route path="/instructor/:id" element={<InstructorProfilePage />} />
+        <Route path="/school/:id" element={<SchoolProfilePage />} />
 
         {/* Instructor Routes */}
         <Route path="/schedule" element={<SchedulePage />} />
