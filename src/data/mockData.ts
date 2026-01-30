@@ -1,6 +1,8 @@
 import { Instructor, Session, Review, Student } from '@/types';
+import { mockSchoolInstructors } from './mockDrivingSchools';
 
-export const mockInstructors: Instructor[] = [
+// Instrutores autônomos (independentes)
+export const mockIndependentInstructors: Instructor[] = [
   {
     id: '1',
     name: 'Carlos Oliveira',
@@ -602,6 +604,12 @@ export const mockInstructors: Instructor[] = [
     totalLessons: 740,
     experience: 8,
   },
+];
+
+// Combina instrutores autônomos + vinculados a autoescolas
+export const mockInstructors: Instructor[] = [
+  ...mockIndependentInstructors.map(i => ({ ...i, providerType: 'independent' as const })),
+  ...mockSchoolInstructors,
 ];
 
 export const mockSessions: Session[] = [

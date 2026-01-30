@@ -97,6 +97,8 @@ export interface Company {
   createdAt: Date;
   packages?: ServicePackage[];
   professionalIds?: string[];
+  // Localização para exibição no mapa
+  location?: Location;
 }
 
 // Alias para autoescolas (compatibilidade)
