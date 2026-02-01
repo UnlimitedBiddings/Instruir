@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      availability: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          end_time: string
+          id: string
+          is_available: boolean
+          professional_id: string
+          start_time: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_available?: boolean
+          professional_id: string
+          start_time: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_available?: boolean
+          professional_id?: string
+          start_time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "availability_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           address: string | null
@@ -23,7 +61,9 @@ export type Database = {
           description: string | null
           email: string | null
           id: string
+          latitude: number | null
           logo_url: string | null
+          longitude: number | null
           name: string
           owner_id: string | null
           phone: string | null
@@ -41,7 +81,9 @@ export type Database = {
           description?: string | null
           email?: string | null
           id?: string
+          latitude?: number | null
           logo_url?: string | null
+          longitude?: number | null
           name: string
           owner_id?: string | null
           phone?: string | null
@@ -59,7 +101,9 @@ export type Database = {
           description?: string | null
           email?: string | null
           id?: string
+          latitude?: number | null
           logo_url?: string | null
+          longitude?: number | null
           name?: string
           owner_id?: string | null
           phone?: string | null
@@ -71,6 +115,93 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message: string | null
+          last_message_at: string | null
+          participant_1: string
+          participant_2: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message?: string | null
+          last_message_at?: string | null
+          participant_1: string
+          participant_2: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message?: string | null
+          last_message_at?: string | null
+          participant_1?: string
+          participant_2?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          read: boolean
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          data: Json | null
+          id: string
+          message: string
+          read: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message: string
+          read?: boolean
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          id?: string
+          message?: string
+          read?: boolean
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       professionals: {
         Row: {
           address: string | null
@@ -79,9 +210,11 @@ export type Database = {
           category: Database["public"]["Enums"]["professional_category"]
           city: string | null
           cnh_verified: boolean | null
+          cnpj: string | null
           company_id: string | null
           created_at: string
           credentials_verified: boolean | null
+          employment_type: string | null
           experience_years: number | null
           id: string
           identity_verified: boolean | null
@@ -92,6 +225,8 @@ export type Database = {
           rating: number | null
           review_count: number | null
           service_zones: string[] | null
+          skills: string[] | null
+          specializations: string[] | null
           total_sessions: number | null
           updated_at: string
           user_id: string
@@ -112,9 +247,11 @@ export type Database = {
           category: Database["public"]["Enums"]["professional_category"]
           city?: string | null
           cnh_verified?: boolean | null
+          cnpj?: string | null
           company_id?: string | null
           created_at?: string
           credentials_verified?: boolean | null
+          employment_type?: string | null
           experience_years?: number | null
           id?: string
           identity_verified?: boolean | null
@@ -125,6 +262,8 @@ export type Database = {
           rating?: number | null
           review_count?: number | null
           service_zones?: string[] | null
+          skills?: string[] | null
+          specializations?: string[] | null
           total_sessions?: number | null
           updated_at?: string
           user_id: string
@@ -145,9 +284,11 @@ export type Database = {
           category?: Database["public"]["Enums"]["professional_category"]
           city?: string | null
           cnh_verified?: boolean | null
+          cnpj?: string | null
           company_id?: string | null
           created_at?: string
           credentials_verified?: boolean | null
+          employment_type?: string | null
           experience_years?: number | null
           id?: string
           identity_verified?: boolean | null
@@ -158,6 +299,8 @@ export type Database = {
           rating?: number | null
           review_count?: number | null
           service_zones?: string[] | null
+          skills?: string[] | null
+          specializations?: string[] | null
           total_sessions?: number | null
           updated_at?: string
           user_id?: string
@@ -255,6 +398,62 @@ export type Database = {
           },
         ]
       }
+      service_packages: {
+        Row: {
+          active: boolean | null
+          company_id: string
+          created_at: string
+          description: string | null
+          id: string
+          includes: string[] | null
+          name: string
+          popular: boolean | null
+          price_per_session: number
+          price_total: number
+          total_sessions: number
+          updated_at: string
+          validity_days: number
+        }
+        Insert: {
+          active?: boolean | null
+          company_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          includes?: string[] | null
+          name: string
+          popular?: boolean | null
+          price_per_session: number
+          price_total: number
+          total_sessions: number
+          updated_at?: string
+          validity_days?: number
+        }
+        Update: {
+          active?: boolean | null
+          company_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          includes?: string[] | null
+          name?: string
+          popular?: boolean | null
+          price_per_session?: number
+          price_total?: number
+          total_sessions?: number
+          updated_at?: string
+          validity_days?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_packages_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sessions: {
         Row: {
           address: string | null
@@ -329,12 +528,63 @@ export type Database = {
           },
         ]
       }
+      students: {
+        Row: {
+          created_at: string
+          id: string
+          lessons_completed: number
+          preferred_categories: string[] | null
+          upcoming_lessons: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lessons_completed?: number
+          preferred_categories?: string[] | null
+          upcoming_lessons?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lessons_completed?: number
+          preferred_categories?: string[] | null
+          upcoming_lessons?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
     }
     Enums: {
       professional_category:
