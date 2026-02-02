@@ -17,9 +17,11 @@ import {
   ArrowLeft,
   GraduationCap,
   Briefcase,
-  Check
+  Check,
+  MailCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -32,6 +34,7 @@ export function RegisterPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showEmailConfirmation, setShowEmailConfirmation] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,14 +43,71 @@ export function RegisterPage() {
     setIsLoading(true);
     
     try {
-      await register({ name, email, phone, role, password });
-      navigate(role === 'student' ? '/explore' : '/schedule');
+      const result = await register({ name, email, phone, role, password });
+      
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      
+      if (result.needsEmailConfirmation) {
+        setShowEmailConfirmation(true);
+        return;
+      }
+      
+      // If no email confirmation needed, navigation will be handled by auth state
     } catch (error) {
-      console.error('Registration failed:', error);
+      toast.error('Erro ao criar conta. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (showEmailConfirmation) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <div className="flex-1 flex items-center justify-center px-6 py-8">
+          <div className="max-w-md w-full text-center">
+            <div className="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6">
+              <MailCheck className="h-10 w-10 text-primary" />
+            </div>
+            
+            <h2 className="font-display text-2xl font-bold mb-3">
+              Verifique seu e-mail
+            </h2>
+            
+            <p className="text-muted-foreground mb-6">
+              Enviamos um link de confirmação para <strong className="text-foreground">{email}</strong>. 
+              Clique no link para ativar sua conta.
+            </p>
+            
+            <div className="bg-muted/50 rounded-xl p-4 mb-6">
+              <p className="text-sm text-muted-foreground">
+                Não recebeu o e-mail? Verifique sua pasta de spam ou{' '}
+                <button 
+                  className="text-primary hover:underline font-medium"
+                  onClick={() => {
+                    toast.info('Por favor, tente fazer login. Se seu e-mail ainda não foi confirmado, você pode solicitar um novo link.');
+                    navigate('/login');
+                  }}
+                >
+                  tente novamente
+                </button>
+              </p>
+            </div>
+            
+            <Button
+              variant="outline"
+              onClick={() => navigate('/login')}
+              className="w-full"
+            >
+              Voltar para o login
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
