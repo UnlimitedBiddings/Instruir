@@ -11,6 +11,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 // Auth Pages
 import { LoginPage } from "@/pages/auth/LoginPage";
 import { RegisterPage } from "@/pages/auth/RegisterPage";
+import { ForgotPasswordPage } from "@/pages/auth/ForgotPasswordPage";
 
 // Student Pages
 import { ExplorePage } from "@/pages/student/ExplorePage";
@@ -33,8 +34,26 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+function LoadingScreen() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative">
+          <div className="w-12 h-12 border-4 border-primary/30 rounded-full" />
+          <div className="absolute inset-0 w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+        <p className="text-muted-foreground">Carregando...</p>
+      </div>
+    </div>
+  );
+}
+
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -44,7 +63,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 }
 
 function AppRoutes() {
-  const { isAuthenticated, userRole } = useAuth();
+  const { isAuthenticated, isLoading, userRole } = useAuth();
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   return (
     <Routes>
@@ -58,6 +81,11 @@ function AppRoutes() {
         isAuthenticated 
           ? <Navigate to={userRole === 'professional' ? '/schedule' : '/explore'} replace />
           : <RegisterPage />
+      } />
+      <Route path="/forgot-password" element={
+        isAuthenticated 
+          ? <Navigate to={userRole === 'professional' ? '/schedule' : '/explore'} replace />
+          : <ForgotPasswordPage />
       } />
 
       {/* Protected App Routes */}

@@ -14,17 +14,15 @@ import {
   Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Professional } from '@/types';
 
 export function ProfilePage() {
-  const { user, logout, userRole } = useAuth();
+  const { profile, logout, userRole } = useAuth();
   const navigate = useNavigate();
 
   const isProfessional = userRole === 'professional';
-  const professional = isProfessional ? (user as Professional) : null;
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/login');
   };
 
@@ -85,21 +83,23 @@ export function ProfilePage() {
 
         {/* Profile Card */}
         <div className="flex items-center gap-4">
-          <img
-            src={user?.avatar}
-            alt={user?.name}
-            className="h-20 w-20 rounded-2xl object-cover"
-          />
+          {profile?.avatar_url ? (
+            <img
+              src={profile.avatar_url}
+              alt={profile.name}
+              className="h-20 w-20 rounded-2xl object-cover"
+            />
+          ) : (
+            <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center">
+              <User className="h-10 w-10 text-primary" />
+            </div>
+          )}
           <div className="flex-1">
-            <h2 className="font-display text-xl font-bold">{user?.name}</h2>
-            <p className="text-muted-foreground">{user?.email}</p>
+            <h2 className="font-display text-xl font-bold">{profile?.name}</h2>
+            <p className="text-muted-foreground">{profile?.email}</p>
             
-            {isProfessional && professional && (
+            {isProfessional && (
               <div className="flex items-center gap-3 mt-2">
-                <div className="flex items-center gap-1">
-                  <Star className="h-4 w-4 text-warning fill-warning" />
-                  <span className="font-semibold">{professional.rating}</span>
-                </div>
                 <div className="flex items-center gap-1 text-muted-foreground">
                   <Shield className="h-4 w-4 text-accent" />
                   <span className="text-sm">Verificado</span>
@@ -108,29 +108,6 @@ export function ProfilePage() {
             )}
           </div>
         </div>
-
-        {isProfessional && professional && (
-          <div className="grid grid-cols-3 gap-3 mt-6">
-            <div className="bg-muted/50 rounded-xl p-3 text-center">
-              <p className="font-display text-xl font-bold text-primary">
-                {professional.totalLessons}
-              </p>
-              <p className="text-xs text-muted-foreground">Aulas</p>
-            </div>
-            <div className="bg-muted/50 rounded-xl p-3 text-center">
-              <p className="font-display text-xl font-bold text-primary">
-                {professional.reviewCount}
-              </p>
-              <p className="text-xs text-muted-foreground">Avaliações</p>
-            </div>
-            <div className="bg-muted/50 rounded-xl p-3 text-center">
-              <p className="font-display text-xl font-bold text-primary">
-                {professional.experience}
-              </p>
-              <p className="text-xs text-muted-foreground">Anos exp.</p>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Menu */}
@@ -163,37 +140,6 @@ export function ProfilePage() {
           <LogOut className="h-5 w-5 mr-2" />
           Sair da conta
         </Button>
-
-        {/* Demo switcher */}
-        <div className="mt-8 p-4 bg-muted/50 rounded-xl">
-          <p className="text-sm text-muted-foreground text-center mb-3">
-            Demonstração - Alternar perfil:
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant={userRole === 'student' ? 'default' : 'outline'}
-              size="sm"
-              className="flex-1"
-              onClick={() => {
-                logout();
-                navigate('/login');
-              }}
-            >
-              Aluno
-            </Button>
-            <Button
-              variant={userRole === 'professional' ? 'default' : 'outline'}
-              size="sm"
-              className="flex-1"
-              onClick={() => {
-                logout();
-                navigate('/login');
-              }}
-            >
-              Profissional
-            </Button>
-          </div>
-        </div>
       </div>
     </div>
   );

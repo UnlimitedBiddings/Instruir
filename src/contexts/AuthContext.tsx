@@ -1,14 +1,30 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
-import { User, UserRole, Student, Instructor } from '@/types';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { User as SupabaseUser, Session } from '@supabase/supabase-js';
+import { UserRole } from '@/types';
+import { toast } from 'sonner';
+
+interface UserProfile {
+  id: string;
+  user_id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  avatar_url: string | null;
+  role: UserRole;
+}
 
 interface AuthContextType {
-  user: User | null;
+  user: SupabaseUser | null;
+  profile: UserProfile | null;
+  session: Session | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   userRole: UserRole | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (data: RegisterData) => Promise<void>;
-  logout: () => void;
-  switchRole: (role: UserRole) => void;
+  login: (email: string, password: string) => Promise<{ error?: string }>;
+  register: (data: RegisterData) => Promise<{ error?: string; needsEmailConfirmation?: boolean }>;
+  logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ error?: string }>;
 }
 
 interface RegisterData {
@@ -21,69 +37,184 @@ interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const mockStudent: Student = {
-  id: '1',
-  name: 'João Silva',
-  email: 'joao@email.com',
-  phone: '(11) 99999-9999',
-  avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-  role: 'student',
-  createdAt: new Date(),
-  lessonsCompleted: 12,
-  upcomingLessons: 2,
-};
-
-const mockInstructor: Instructor = {
-  id: '2',
-  name: 'Carlos Oliveira',
-  email: 'carlos@email.com',
-  phone: '(11) 98888-8888',
-  avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-  role: 'professional',
-  category: 'driving_instructor',
-  createdAt: new Date(),
-  bio: 'Instrutor com 10 anos de experiência.',
-  rating: 4.9,
-  reviewCount: 234,
-  pricePerHour: 80,
-  vehicle: { model: 'Chevrolet Onix Plus', year: 2024, color: 'Prata', transmission: 'manual', hasAirConditioning: true },
-  location: { lat: -23.5505, lng: -46.6333, address: 'Av. Paulista, São Paulo', city: 'São Paulo', distance: 2.5 },
-  serviceZones: ['Centro', 'Paulista', 'Pinheiros', 'Vila Mariana'],
-  availability: [],
-  verified: { identity: true, background: true, credentials: true, cnh: true, criminalRecord: true, vehicleInspection: true },
-  totalLessons: 1250,
-  experience: 10,
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch user profile from database
+  const fetchProfile = useCallback(async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return null;
+      }
+
+      return data as UserProfile;
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      return null;
+    }
+  }, []);
+
+  // Initialize auth state
+  useEffect(() => {
+    // Set up auth state listener BEFORE checking session
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, currentSession) => {
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+
+        if (currentSession?.user) {
+          // Use setTimeout to avoid potential race conditions
+          setTimeout(async () => {
+            const userProfile = await fetchProfile(currentSession.user.id);
+            setProfile(userProfile);
+          }, 0);
+        } else {
+          setProfile(null);
+        }
+
+        setIsLoading(false);
+      }
+    );
+
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      setUser(currentSession?.user ?? null);
+
+      if (currentSession?.user) {
+        fetchProfile(currentSession.user.id).then(setProfile);
+      }
+
+      setIsLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [fetchProfile]);
 
   const login = useCallback(async (email: string, password: string) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    if (email.includes('instrutor') || email.includes('instructor')) {
-      setUser(mockInstructor);
-    } else {
-      setUser(mockStudent);
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        if (error.message === 'Email not confirmed') {
+          return { error: 'Por favor, confirme seu e-mail antes de fazer login. Verifique sua caixa de entrada.' };
+        }
+        if (error.message === 'Invalid login credentials') {
+          return { error: 'E-mail ou senha incorretos.' };
+        }
+        return { error: error.message };
+      }
+
+      if (data.user) {
+        const userProfile = await fetchProfile(data.user.id);
+        setProfile(userProfile);
+        toast.success('Login realizado com sucesso!');
+      }
+
+      return {};
+    } catch (error: any) {
+      return { error: error.message || 'Erro ao fazer login' };
     }
-  }, []);
+  }, [fetchProfile]);
 
   const register = useCallback(async (data: RegisterData) => {
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    if (data.role === 'professional') {
-      setUser({ ...mockInstructor, name: data.name, email: data.email, phone: data.phone });
-    } else {
-      setUser({ ...mockStudent, name: data.name, email: data.email, phone: data.phone });
+    try {
+      const { data: authData, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          emailRedirectTo: window.location.origin,
+          data: {
+            name: data.name,
+            phone: data.phone,
+            role: data.role,
+          },
+        },
+      });
+
+      if (error) {
+        if (error.message.includes('already registered')) {
+          return { error: 'Este e-mail já está cadastrado.' };
+        }
+        return { error: error.message };
+      }
+
+      // Check if email confirmation is required
+      if (authData.user && !authData.session) {
+        return { needsEmailConfirmation: true };
+      }
+
+      if (authData.user && authData.session) {
+        const userProfile = await fetchProfile(authData.user.id);
+        setProfile(userProfile);
+        toast.success('Conta criada com sucesso!');
+      }
+
+      return {};
+    } catch (error: any) {
+      return { error: error.message || 'Erro ao criar conta' };
+    }
+  }, [fetchProfile]);
+
+  const logout = useCallback(async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+      setProfile(null);
+      setSession(null);
+      toast.success('Logout realizado com sucesso!');
+    } catch (error) {
+      console.error('Error logging out:', error);
+      toast.error('Erro ao fazer logout');
     }
   }, []);
 
-  const logout = useCallback(() => { setUser(null); }, []);
+  const resetPassword = useCallback(async (email: string) => {
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
 
-  const switchRole = useCallback((role: UserRole) => {
-    if (role === 'professional') { setUser(mockInstructor); } else { setUser(mockStudent); }
+      if (error) {
+        return { error: error.message };
+      }
+
+      return {};
+    } catch (error: any) {
+      return { error: error.message || 'Erro ao enviar e-mail de recuperação' };
+    }
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, userRole: user?.role ?? null, login, register, logout, switchRole }}>
+    <AuthContext.Provider 
+      value={{ 
+        user, 
+        profile,
+        session,
+        isAuthenticated: !!session, 
+        isLoading,
+        userRole: profile?.role ?? null, 
+        login, 
+        register, 
+        logout,
+        resetPassword,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -91,6 +222,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) { throw new Error('useAuth must be used within an AuthProvider'); }
+  if (context === undefined) { 
+    throw new Error('useAuth must be used within an AuthProvider'); 
+  }
   return context;
 }

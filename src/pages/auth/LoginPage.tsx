@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Car, Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { toast } from 'sonner';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -19,10 +20,16 @@ export function LoginPage() {
     setIsLoading(true);
     
     try {
-      await login(email, password);
-      navigate('/explore');
+      const result = await login(email, password);
+      
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      
+      // Navigation will be handled by the auth state change
     } catch (error) {
-      console.error('Login failed:', error);
+      toast.error('Erro ao fazer login. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -106,6 +113,7 @@ export function LoginPage() {
             <div className="flex items-center justify-end">
               <button
                 type="button"
+                onClick={() => navigate('/forgot-password')}
                 className="text-sm text-primary hover:underline"
               >
                 Esqueceu a senha?
@@ -143,39 +151,6 @@ export function LoginPage() {
                 Cadastre-se
               </button>
             </p>
-          </div>
-
-          {/* Demo Access */}
-          <div className="mt-8 p-4 bg-muted/50 rounded-xl">
-            <p className="text-sm text-muted-foreground text-center mb-3">
-              Acesso rápido para demonstração:
-            </p>
-            <div className="flex gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="flex-1"
-                onClick={() => {
-                  setEmail('aluno@email.com');
-                  setPassword('123456');
-                }}
-              >
-                Sou Aluno
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="flex-1"
-                onClick={() => {
-                  setEmail('instrutor@email.com');
-                  setPassword('123456');
-                }}
-              >
-                Sou Instrutor
-              </Button>
-            </div>
           </div>
         </div>
       </div>
