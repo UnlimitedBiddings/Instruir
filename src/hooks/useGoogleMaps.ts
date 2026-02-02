@@ -14,7 +14,7 @@ export function useGoogleMaps(apiKey: string | null) {
     const loader = new Loader({
       apiKey,
       version: 'weekly',
-      libraries: ['places', 'geometry'],
+      libraries: ['places', 'geometry', 'marker'],
     });
 
     loader
