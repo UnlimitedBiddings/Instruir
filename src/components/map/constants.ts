@@ -1,7 +1,9 @@
 // Map configuration constants
 export const GOOGLE_MAPS_API_KEY = 'AIzaSyA1-NrREEo8bBiDNK_TwpLvTvE9QrDcioo';
-export const CENTER = { lat: -23.5629, lng: -46.6544 };
-export const RADIUS_KM = 10;
+
+// Guarapari, ES center coordinates
+export const CENTER = { lat: -20.6500, lng: -40.4967 };
+export const RADIUS_KM = 15;
 
 // Dark theme map styles
 export const mapStyles: google.maps.MapTypeStyle[] = [

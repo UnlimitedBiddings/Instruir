@@ -1,4 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { useNavigate } from 'react-router-dom';
 import { 
   User, 
@@ -10,13 +11,18 @@ import {
   ChevronRight,
   Car,
   MapPin,
-  Star,
-  Shield
+  Shield,
+  Moon,
+  Sun,
+  Monitor
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 export function ProfilePage() {
   const { profile, logout, userRole } = useAuth();
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const navigate = useNavigate();
 
   const isProfessional = userRole === 'professional';
@@ -60,12 +66,6 @@ export function ProfilePage() {
       onClick: () => {},
     },
     {
-      icon: Settings,
-      label: 'Configurações',
-      description: 'Privacidade e segurança',
-      onClick: () => {},
-    },
-    {
       icon: HelpCircle,
       label: 'Ajuda',
       description: 'Dúvidas e suporte',
@@ -74,7 +74,7 @@ export function ProfilePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-24">
       {/* Header */}
       <div className="bg-card border-b border-border px-4 pt-4 pb-6 safe-area-top">
         <h1 className="font-display text-2xl font-bold mb-6">
@@ -110,8 +110,78 @@ export function ProfilePage() {
         </div>
       </div>
 
-      {/* Menu */}
+      {/* Theme Settings */}
       <div className="p-4">
+        <div className="card-elevated p-4 mb-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              {resolvedTheme === 'dark' ? (
+                <Moon className="h-5 w-5 text-primary" />
+              ) : (
+                <Sun className="h-5 w-5 text-primary" />
+              )}
+            </div>
+            <div className="flex-1">
+              <p className="font-medium">Aparência</p>
+              <p className="text-sm text-muted-foreground">Escolha o tema do app</p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <button 
+              onClick={() => setTheme('light')}
+              className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors ${
+                theme === 'light' 
+                  ? 'bg-primary/10 border-2 border-primary' 
+                  : 'bg-muted/50 hover:bg-muted'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Sun className="h-5 w-5 text-amber-500" />
+                <span>Claro</span>
+              </div>
+              {theme === 'light' && (
+                <div className="w-2 h-2 rounded-full bg-primary" />
+              )}
+            </button>
+
+            <button 
+              onClick={() => setTheme('dark')}
+              className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors ${
+                theme === 'dark' 
+                  ? 'bg-primary/10 border-2 border-primary' 
+                  : 'bg-muted/50 hover:bg-muted'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Moon className="h-5 w-5 text-blue-400" />
+                <span>Escuro</span>
+              </div>
+              {theme === 'dark' && (
+                <div className="w-2 h-2 rounded-full bg-primary" />
+              )}
+            </button>
+
+            <button 
+              onClick={() => setTheme('system')}
+              className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors ${
+                theme === 'system' 
+                  ? 'bg-primary/10 border-2 border-primary' 
+                  : 'bg-muted/50 hover:bg-muted'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Monitor className="h-5 w-5 text-muted-foreground" />
+                <span>Automático (sistema)</span>
+              </div>
+              {theme === 'system' && (
+                <div className="w-2 h-2 rounded-full bg-primary" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Menu */}
         <div className="space-y-2">
           {menuItems.map((item, index) => (
             <button
