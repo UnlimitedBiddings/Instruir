@@ -1,14 +1,9 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
-  MapPin, 
-  Calendar, 
-  Bell, 
-  User, 
-  Inbox,
-  Wallet,
-  Search,
-  MessageCircle
+  Home,
+  MessageCircle,
+  User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { mockConversations } from '@/data/mockChats';
@@ -28,21 +23,11 @@ export function BottomNavigation() {
   // Calculate unread messages
   const unreadCount = mockConversations.reduce((sum, c) => sum + c.unreadCount, 0);
 
-  const studentNavItems: NavItem[] = [
-    { icon: Search, label: 'Explorar', path: '/explore' },
-    { icon: Calendar, label: 'Aulas', path: '/lessons' },
+  const navItems: NavItem[] = [
+    { icon: Home, label: 'Home', path: '/explore' },
     { icon: MessageCircle, label: 'Chat', path: '/conversations', badge: unreadCount },
     { icon: User, label: 'Perfil', path: '/profile' },
   ];
-
-  const professionalNavItems: NavItem[] = [
-    { icon: Calendar, label: 'Agenda', path: '/schedule' },
-    { icon: Inbox, label: 'Solicitações', path: '/requests' },
-    { icon: MessageCircle, label: 'Chat', path: '/conversations', badge: unreadCount },
-    { icon: Wallet, label: 'Financeiro', path: '/earnings' },
-  ];
-
-  const navItems = userRole === 'professional' ? professionalNavItems : studentNavItems;
 
   return (
     <nav className="bottom-nav z-50">
@@ -57,7 +42,7 @@ export function BottomNavigation() {
               key={item.path}
               onClick={() => navigate(item.path)}
               className={cn(
-                "relative flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl transition-all duration-200 min-w-[72px]",
+                "relative flex flex-col items-center justify-center gap-1 px-6 py-2 rounded-xl transition-all duration-200 min-w-[80px]",
                 isActive 
                   ? "bg-primary/10 text-primary" 
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -77,7 +62,7 @@ export function BottomNavigation() {
                 )}
               </div>
               <span className={cn(
-                "text-[10px] font-medium transition-all",
+                "text-[11px] font-medium transition-all",
                 isActive && "font-semibold"
               )}>
                 {item.label}

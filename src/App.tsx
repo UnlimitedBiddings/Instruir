@@ -15,14 +15,11 @@ import { ForgotPasswordPage } from "@/pages/auth/ForgotPasswordPage";
 
 // Student Pages
 import { ExplorePage } from "@/pages/student/ExplorePage";
-import { LessonsPage } from "@/pages/student/LessonsPage";
 import { InstructorProfilePage } from "@/pages/student/InstructorProfilePage";
 import { SchoolProfilePage } from "@/pages/student/SchoolProfilePage";
 
-// Instructor Pages
-import { SchedulePage } from "@/pages/instructor/SchedulePage";
+// Professional Routes
 import { RequestsPage } from "@/pages/instructor/RequestsPage";
-import { EarningsPage } from "@/pages/instructor/EarningsPage";
 
 // Shared Pages
 import { ProfilePage } from "@/pages/shared/ProfilePage";
@@ -74,17 +71,17 @@ function AppRoutes() {
       {/* Auth Routes */}
       <Route path="/login" element={
         isAuthenticated 
-          ? <Navigate to={userRole === 'professional' ? '/schedule' : '/explore'} replace />
+          ? <Navigate to="/explore" replace />
           : <LoginPage />
       } />
       <Route path="/register" element={
         isAuthenticated 
-          ? <Navigate to={userRole === 'professional' ? '/schedule' : '/explore'} replace />
+          ? <Navigate to="/explore" replace />
           : <RegisterPage />
       } />
       <Route path="/forgot-password" element={
         isAuthenticated 
-          ? <Navigate to={userRole === 'professional' ? '/schedule' : '/explore'} replace />
+          ? <Navigate to="/explore" replace />
           : <ForgotPasswordPage />
       } />
 
@@ -96,14 +93,14 @@ function AppRoutes() {
       }>
         {/* Student Routes */}
         <Route path="/explore" element={<ExplorePage />} />
-        <Route path="/lessons" element={<LessonsPage />} />
+        <Route path="/lessons" element={<Navigate to="/profile" replace />} />
         <Route path="/instructor/:id" element={<InstructorProfilePage />} />
         <Route path="/school/:id" element={<SchoolProfilePage />} />
 
-        {/* Instructor Routes */}
-        <Route path="/schedule" element={<SchedulePage />} />
+        {/* Professional Routes - Redirect old routes to profile */}
+        <Route path="/schedule" element={<Navigate to="/profile" replace />} />
         <Route path="/requests" element={<RequestsPage />} />
-        <Route path="/earnings" element={<EarningsPage />} />
+        <Route path="/earnings" element={<Navigate to="/profile" replace />} />
 
         {/* Shared Routes */}
         <Route path="/profile" element={<ProfilePage />} />
@@ -115,7 +112,7 @@ function AppRoutes() {
       {/* Redirects */}
       <Route path="/" element={
         isAuthenticated 
-          ? <Navigate to={userRole === 'professional' ? '/schedule' : '/explore'} replace />
+          ? <Navigate to="/explore" replace />
           : <Navigate to="/login" replace />
       } />
 
