@@ -64,7 +64,7 @@ export function useMapMarkers({
         title: instructor.name,
       });
 
-      marker.addListener('click', () => {
+      marker.addEventListener('gmp-click', () => {
         if (infoWindow && mapInstance) {
           infoWindow.setContent(createInstructorInfoWindowContent(instructor));
           infoWindow.open(mapInstance, marker);
