@@ -94,7 +94,7 @@ export function InstructorProfilePage() {
             {isFromSchool && school && (
               <button 
                 onClick={() => navigate(`/school/${school.id}`)}
-                className="flex items-center gap-1.5 text-sm text-blue-600 hover:underline"
+                className="flex items-center gap-1.5 text-sm text-primary hover:underline"
               >
                 <Building2 className="h-4 w-4" />
                 <span className="truncate">{school.name}</span>
