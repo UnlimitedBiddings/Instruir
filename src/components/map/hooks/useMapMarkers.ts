@@ -99,7 +99,7 @@ export function useMapMarkers({
         title: school.name,
       });
 
-      marker.addListener('click', () => {
+      marker.addEventListener('gmp-click', () => {
         if (infoWindow && mapInstance) {
           infoWindow.setContent(createSchoolInfoWindowContent(school));
           infoWindow.open(mapInstance, marker);
