@@ -19,10 +19,8 @@ import { InstructorProfilePage } from "@/pages/student/InstructorProfilePage";
 import { InstructorProfilePage } from "@/pages/student/InstructorProfilePage";
 import { SchoolProfilePage } from "@/pages/student/SchoolProfilePage";
 
-// Instructor Pages
-import { SchedulePage } from "@/pages/instructor/SchedulePage";
+// Professional Routes
 import { RequestsPage } from "@/pages/instructor/RequestsPage";
-import { EarningsPage } from "@/pages/instructor/EarningsPage";
 
 // Shared Pages
 import { ProfilePage } from "@/pages/shared/ProfilePage";
