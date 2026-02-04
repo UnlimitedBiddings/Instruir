@@ -71,17 +71,17 @@ function AppRoutes() {
       {/* Auth Routes */}
       <Route path="/login" element={
         isAuthenticated 
-          ? <Navigate to={userRole === 'professional' ? '/schedule' : '/explore'} replace />
+          ? <Navigate to="/explore" replace />
           : <LoginPage />
       } />
       <Route path="/register" element={
         isAuthenticated 
-          ? <Navigate to={userRole === 'professional' ? '/schedule' : '/explore'} replace />
+          ? <Navigate to="/explore" replace />
           : <RegisterPage />
       } />
       <Route path="/forgot-password" element={
         isAuthenticated 
-          ? <Navigate to={userRole === 'professional' ? '/schedule' : '/explore'} replace />
+          ? <Navigate to="/explore" replace />
           : <ForgotPasswordPage />
       } />
 
