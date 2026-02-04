@@ -1,4 +1,4 @@
-import { Shield, ShieldCheck, Car, FileCheck } from 'lucide-react';
+import { Shield, ShieldCheck, Car, FileCheck, User, BadgeCheck, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { VerificationStatus } from '@/types';
 
@@ -9,7 +9,19 @@ interface VerificationBadgeProps {
   size?: 'sm' | 'md';
 }
 
-const verificationConfig = {
+const verificationConfig: Record<keyof VerificationStatus, { label: string; icon: typeof Shield }> = {
+  identity: {
+    label: 'Identidade Verificada',
+    icon: User,
+  },
+  background: {
+    label: 'Background Verificado',
+    icon: BadgeCheck,
+  },
+  credentials: {
+    label: 'Credenciais Verificadas',
+    icon: Award,
+  },
   cnh: {
     label: 'CNH Validada',
     icon: FileCheck,
