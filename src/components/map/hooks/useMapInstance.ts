@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { useGoogleMaps } from '@/hooks/useGoogleMaps';
-import { GOOGLE_MAPS_API_KEY, CENTER, RADIUS_KM, mapStyles } from '../constants';
+import { GOOGLE_MAPS_API_KEY, CENTER, RADIUS_KM } from '../constants';
 
 export function useMapInstance() {
   const mapRef = useRef<HTMLDivElement>(null);
