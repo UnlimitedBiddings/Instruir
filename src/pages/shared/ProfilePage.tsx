@@ -1,30 +1,212 @@
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useNavigate } from 'react-router-dom';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   User, 
-  Settings, 
-  CreditCard, 
-  Bell, 
-  HelpCircle, 
-  LogOut,
+  Calendar,
+  Wallet,
+  Settings,
   ChevronRight,
   Car,
   MapPin,
   Shield,
   Moon,
   Sun,
-  Monitor
+  Monitor,
+  LogOut,
+  Bell,
+  HelpCircle,
+  CreditCard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
-export function ProfilePage() {
+// Profile Header Component
+function ProfileHeader() {
+  const { profile, userRole } = useAuth();
+  const isProfessional = userRole === 'professional';
+
+  return (
+    <div className="bg-card border-b border-border px-4 pt-4 pb-6 safe-area-top">
+      <div className="flex items-center gap-4">
+        {profile?.avatar_url ? (
+          <img
+            src={profile.avatar_url}
+            alt={profile.name}
+            className="h-20 w-20 rounded-2xl object-cover"
+          />
+        ) : (
+          <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <User className="h-10 w-10 text-primary" />
+          </div>
+        )}
+        <div className="flex-1">
+          <h2 className="font-display text-xl font-bold">{profile?.name}</h2>
+          <p className="text-muted-foreground text-sm">{profile?.email}</p>
+          
+          {isProfessional && (
+            <div className="flex items-center gap-3 mt-2">
+              <div className="flex items-center gap-1 text-muted-foreground">
+                <Shield className="h-4 w-4 text-accent" />
+                <span className="text-sm">Verificado</span>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Schedule Tab Content
+function ScheduleTab() {
+  const { userRole } = useAuth();
+  const isProfessional = userRole === 'professional';
+
+  const mockLessons = [
+    { id: 1, date: new Date(), time: '09:00', person: isProfessional ? 'Maria Silva' : 'Carlos Instrutor', status: 'confirmed' },
+    { id: 2, date: new Date(), time: '14:00', person: isProfessional ? 'João Santos' : 'Ana Instrutora', status: 'pending' },
+  ];
+
+  return (
+    <div className="p-4 space-y-4">
+      <h3 className="font-display font-semibold text-lg">
+        {isProfessional ? 'Minha Agenda' : 'Minhas Aulas'}
+      </h3>
+      
+      {mockLessons.length > 0 ? (
+        <div className="space-y-3">
+          {mockLessons.map((lesson) => (
+            <div 
+              key={lesson.id}
+              className="card-elevated p-4 flex items-center gap-4"
+            >
+              <div className={cn(
+                "w-1 h-14 rounded-full",
+                lesson.status === 'confirmed' ? "bg-success" : "bg-warning"
+              )} />
+              <div className="flex-1">
+                <p className="font-semibold">{lesson.person}</p>
+                <div className="flex items-center gap-1 text-sm text-muted-foreground mt-0.5">
+                  <Calendar className="h-3.5 w-3.5" />
+                  <span>Hoje às {lesson.time}</span>
+                  <span className="mx-1">•</span>
+                  <span className={cn(
+                    lesson.status === 'confirmed' ? "text-success" : "text-warning"
+                  )}>
+                    {lesson.status === 'confirmed' ? 'Confirmada' : 'Pendente'}
+                  </span>
+                </div>
+              </div>
+              <Button variant="outline" size="sm">
+                Detalhes
+              </Button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-12">
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+            <Calendar className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <h4 className="font-display font-semibold text-lg mb-2">
+            Nenhuma aula agendada
+          </h4>
+          <p className="text-muted-foreground">
+            {isProfessional ? 'Você não tem aulas hoje.' : 'Agende sua primeira aula!'}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Financials Tab Content
+function FinancialsTab() {
+  const { userRole } = useAuth();
+  const isProfessional = userRole === 'professional';
+
+  const mockEarnings = {
+    thisMonth: 4850,
+    lastMonth: 5200,
+    pending: 850,
+    totalLessons: 42
+  };
+
+  if (!isProfessional) {
+    return (
+      <div className="p-4 space-y-4">
+        <h3 className="font-display font-semibold text-lg">Pagamentos</h3>
+        <div className="card-elevated p-4">
+          <p className="text-muted-foreground text-sm mb-4">Histórico de pagamentos</p>
+          <div className="space-y-3">
+            <div className="flex justify-between items-center py-2 border-b border-border">
+              <div>
+                <p className="font-medium">Aula com Carlos</p>
+                <p className="text-sm text-muted-foreground">15 Jan 2025</p>
+              </div>
+              <span className="font-semibold">R$ 85,00</span>
+            </div>
+            <div className="flex justify-between items-center py-2 border-b border-border">
+              <div>
+                <p className="font-medium">Aula com Ana</p>
+                <p className="text-sm text-muted-foreground">12 Jan 2025</p>
+              </div>
+              <span className="font-semibold">R$ 85,00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-4 space-y-4">
+      <h3 className="font-display font-semibold text-lg">Financeiro</h3>
+      
+      {/* Summary Cards */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="card-elevated p-4">
+          <p className="text-sm text-muted-foreground">Este mês</p>
+          <p className="font-display text-2xl font-bold text-primary">
+            R$ {mockEarnings.thisMonth.toLocaleString('pt-BR')}
+          </p>
+        </div>
+        <div className="card-elevated p-4">
+          <p className="text-sm text-muted-foreground">Pendente</p>
+          <p className="font-display text-2xl font-bold text-warning">
+            R$ {mockEarnings.pending.toLocaleString('pt-BR')}
+          </p>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="card-elevated p-4">
+        <div className="flex justify-between items-center mb-4">
+          <p className="font-medium">Aulas realizadas</p>
+          <p className="font-display text-xl font-bold">{mockEarnings.totalLessons}</p>
+        </div>
+        <div className="flex justify-between items-center">
+          <p className="font-medium">Mês anterior</p>
+          <p className="text-muted-foreground">R$ {mockEarnings.lastMonth.toLocaleString('pt-BR')}</p>
+        </div>
+      </div>
+
+      <Button variant="outline" className="w-full">
+        <Wallet className="h-4 w-4 mr-2" />
+        Ver extrato completo
+      </Button>
+    </div>
+  );
+}
+
+// Settings Tab Content
+function SettingsTab() {
   const { profile, logout, userRole } = useAuth();
   const { theme, setTheme, resolvedTheme } = useTheme();
   const navigate = useNavigate();
-
   const isProfessional = userRole === 'professional';
 
   const handleLogout = async () => {
@@ -55,8 +237,8 @@ export function ProfilePage() {
     ] : []),
     {
       icon: CreditCard,
-      label: isProfessional ? 'Dados bancários' : 'Pagamentos',
-      description: isProfessional ? 'Conta para recebimentos' : 'Cartões e histórico',
+      label: isProfessional ? 'Dados bancários' : 'Métodos de pagamento',
+      description: isProfessional ? 'Conta para recebimentos' : 'Cartões salvos',
       onClick: () => {},
     },
     {
@@ -74,143 +256,165 @@ export function ProfilePage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <div className="bg-card border-b border-border px-4 pt-4 pb-6 safe-area-top">
-        <h1 className="font-display text-2xl font-bold mb-6">
-          {isProfessional ? 'Perfil Pro' : 'Meu Perfil'}
-        </h1>
-
-        {/* Profile Card */}
-        <div className="flex items-center gap-4">
-          {profile?.avatar_url ? (
-            <img
-              src={profile.avatar_url}
-              alt={profile.name}
-              className="h-20 w-20 rounded-2xl object-cover"
-            />
-          ) : (
-            <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center">
-              <User className="h-10 w-10 text-primary" />
-            </div>
-          )}
-          <div className="flex-1">
-            <h2 className="font-display text-xl font-bold">{profile?.name}</h2>
-            <p className="text-muted-foreground">{profile?.email}</p>
-            
-            {isProfessional && (
-              <div className="flex items-center gap-3 mt-2">
-                <div className="flex items-center gap-1 text-muted-foreground">
-                  <Shield className="h-4 w-4 text-accent" />
-                  <span className="text-sm">Verificado</span>
-                </div>
-              </div>
+    <div className="p-4 space-y-4">
+      {/* Theme Settings */}
+      <div className="card-elevated p-4">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            {resolvedTheme === 'dark' ? (
+              <Moon className="h-5 w-5 text-primary" />
+            ) : (
+              <Sun className="h-5 w-5 text-primary" />
             )}
           </div>
+          <div className="flex-1">
+            <p className="font-medium">Aparência</p>
+            <p className="text-sm text-muted-foreground">Escolha o tema do app</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2">
+          <button 
+            onClick={() => setTheme('light')}
+            className={cn(
+              "flex flex-col items-center gap-2 p-3 rounded-xl transition-colors",
+              theme === 'light' 
+                ? "bg-primary/10 border-2 border-primary" 
+                : "bg-muted/50 hover:bg-muted"
+            )}
+          >
+            <Sun className="h-5 w-5 text-amber-500" />
+            <span className="text-xs font-medium">Claro</span>
+          </button>
+
+          <button 
+            onClick={() => setTheme('dark')}
+            className={cn(
+              "flex flex-col items-center gap-2 p-3 rounded-xl transition-colors",
+              theme === 'dark' 
+                ? "bg-primary/10 border-2 border-primary" 
+                : "bg-muted/50 hover:bg-muted"
+            )}
+          >
+            <Moon className="h-5 w-5 text-blue-400" />
+            <span className="text-xs font-medium">Escuro</span>
+          </button>
+
+          <button 
+            onClick={() => setTheme('system')}
+            className={cn(
+              "flex flex-col items-center gap-2 p-3 rounded-xl transition-colors",
+              theme === 'system' 
+                ? "bg-primary/10 border-2 border-primary" 
+                : "bg-muted/50 hover:bg-muted"
+            )}
+          >
+            <Monitor className="h-5 w-5 text-muted-foreground" />
+            <span className="text-xs font-medium">Auto</span>
+          </button>
         </div>
       </div>
 
-      {/* Theme Settings */}
-      <div className="p-4">
-        <div className="card-elevated p-4 mb-4">
-          <div className="flex items-center gap-3 mb-4">
+      {/* Menu Items */}
+      <div className="space-y-2">
+        {menuItems.map((item, index) => (
+          <button
+            key={index}
+            onClick={item.onClick}
+            className="w-full card-elevated p-4 flex items-center gap-4 hover:bg-muted/30 transition-colors"
+          >
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-              {resolvedTheme === 'dark' ? (
-                <Moon className="h-5 w-5 text-primary" />
-              ) : (
-                <Sun className="h-5 w-5 text-primary" />
-              )}
+              <item.icon className="h-5 w-5 text-primary" />
             </div>
-            <div className="flex-1">
-              <p className="font-medium">Aparência</p>
-              <p className="text-sm text-muted-foreground">Escolha o tema do app</p>
+            <div className="flex-1 text-left">
+              <p className="font-medium">{item.label}</p>
+              <p className="text-sm text-muted-foreground">{item.description}</p>
             </div>
-          </div>
-
-          <div className="space-y-3">
-            <button 
-              onClick={() => setTheme('light')}
-              className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors ${
-                theme === 'light' 
-                  ? 'bg-primary/10 border-2 border-primary' 
-                  : 'bg-muted/50 hover:bg-muted'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Sun className="h-5 w-5 text-amber-500" />
-                <span>Claro</span>
-              </div>
-              {theme === 'light' && (
-                <div className="w-2 h-2 rounded-full bg-primary" />
-              )}
-            </button>
-
-            <button 
-              onClick={() => setTheme('dark')}
-              className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors ${
-                theme === 'dark' 
-                  ? 'bg-primary/10 border-2 border-primary' 
-                  : 'bg-muted/50 hover:bg-muted'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Moon className="h-5 w-5 text-blue-400" />
-                <span>Escuro</span>
-              </div>
-              {theme === 'dark' && (
-                <div className="w-2 h-2 rounded-full bg-primary" />
-              )}
-            </button>
-
-            <button 
-              onClick={() => setTheme('system')}
-              className={`w-full flex items-center justify-between p-3 rounded-xl transition-colors ${
-                theme === 'system' 
-                  ? 'bg-primary/10 border-2 border-primary' 
-                  : 'bg-muted/50 hover:bg-muted'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Monitor className="h-5 w-5 text-muted-foreground" />
-                <span>Automático (sistema)</span>
-              </div>
-              {theme === 'system' && (
-                <div className="w-2 h-2 rounded-full bg-primary" />
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Menu */}
-        <div className="space-y-2">
-          {menuItems.map((item, index) => (
-            <button
-              key={index}
-              onClick={item.onClick}
-              className="w-full card-elevated p-4 flex items-center gap-4 hover:bg-muted/30 transition-colors"
-            >
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <item.icon className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="font-medium">{item.label}</p>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
-              </div>
-              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-            </button>
-          ))}
-        </div>
-
-        {/* Logout */}
-        <Button
-          variant="ghost"
-          className="w-full mt-6 text-destructive hover:text-destructive hover:bg-destructive/10"
-          onClick={handleLogout}
-        >
-          <LogOut className="h-5 w-5 mr-2" />
-          Sair da conta
-        </Button>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </button>
+        ))}
       </div>
+
+      {/* Logout */}
+      <Button
+        variant="ghost"
+        className="w-full text-destructive hover:text-destructive hover:bg-destructive/10"
+        onClick={handleLogout}
+      >
+        <LogOut className="h-5 w-5 mr-2" />
+        Sair da conta
+      </Button>
+    </div>
+  );
+}
+
+export function ProfilePage() {
+  const { userRole } = useAuth();
+  const isProfessional = userRole === 'professional';
+  const [activeTab, setActiveTab] = useState('schedule');
+
+  return (
+    <div className="min-h-screen bg-background pb-24">
+      <ProfileHeader />
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <div className="sticky top-0 z-10 bg-background border-b border-border">
+          <TabsList className="w-full h-auto p-0 bg-transparent rounded-none">
+            <TabsTrigger 
+              value="schedule" 
+              className="flex-1 py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none"
+            >
+              <Calendar className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Agenda</span>
+            </TabsTrigger>
+            {isProfessional && (
+              <TabsTrigger 
+                value="financials" 
+                className="flex-1 py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none"
+              >
+                <Wallet className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Financeiro</span>
+              </TabsTrigger>
+            )}
+            {!isProfessional && (
+              <TabsTrigger 
+                value="payments" 
+                className="flex-1 py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none"
+              >
+                <CreditCard className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Pagamentos</span>
+              </TabsTrigger>
+            )}
+            <TabsTrigger 
+              value="settings" 
+              className="flex-1 py-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:shadow-none"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Ajustes</span>
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent value="schedule" className="mt-0">
+          <ScheduleTab />
+        </TabsContent>
+        
+        {isProfessional && (
+          <TabsContent value="financials" className="mt-0">
+            <FinancialsTab />
+          </TabsContent>
+        )}
+
+        {!isProfessional && (
+          <TabsContent value="payments" className="mt-0">
+            <FinancialsTab />
+          </TabsContent>
+        )}
+
+        <TabsContent value="settings" className="mt-0">
+          <SettingsTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
