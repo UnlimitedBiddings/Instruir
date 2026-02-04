@@ -283,7 +283,7 @@ function SettingsTab() {
                 : "bg-muted/50 hover:bg-muted"
             )}
           >
-            <Sun className="h-5 w-5 text-amber-500" />
+            <Sun className="h-5 w-5 text-warning" />
             <span className="text-xs font-medium">Claro</span>
           </button>
 
@@ -296,7 +296,7 @@ function SettingsTab() {
                 : "bg-muted/50 hover:bg-muted"
             )}
           >
-            <Moon className="h-5 w-5 text-blue-400" />
+            <Moon className="h-5 w-5 text-primary" />
             <span className="text-xs font-medium">Escuro</span>
           </button>
 

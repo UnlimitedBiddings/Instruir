@@ -116,7 +116,7 @@ export function InstructorProfilePage() {
 
         {/* Provider Type Badge */}
         {isFromSchool ? (
-          <Badge className="bg-blue-500 text-white mb-4">
+          <Badge className="bg-accent text-accent-foreground mb-4">
             <Building2 className="h-3 w-3 mr-1" />
             Autoescola
           </Badge>
