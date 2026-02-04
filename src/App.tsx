@@ -96,14 +96,14 @@ function AppRoutes() {
       }>
         {/* Student Routes */}
         <Route path="/explore" element={<ExplorePage />} />
-        <Route path="/lessons" element={<LessonsPage />} />
+        <Route path="/lessons" element={<Navigate to="/profile" replace />} />
         <Route path="/instructor/:id" element={<InstructorProfilePage />} />
         <Route path="/school/:id" element={<SchoolProfilePage />} />
 
-        {/* Instructor Routes */}
-        <Route path="/schedule" element={<SchedulePage />} />
+        {/* Professional Routes - Redirect old routes to profile */}
+        <Route path="/schedule" element={<Navigate to="/profile" replace />} />
         <Route path="/requests" element={<RequestsPage />} />
-        <Route path="/earnings" element={<EarningsPage />} />
+        <Route path="/earnings" element={<Navigate to="/profile" replace />} />
 
         {/* Shared Routes */}
         <Route path="/profile" element={<ProfilePage />} />
