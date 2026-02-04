@@ -74,7 +74,6 @@ export function useMapInstance() {
       disableDefaultUI: true,
       zoomControl: false,
       gestureHandling: 'greedy',
-      styles: mapStyles,
       minZoom: 10,
       maxZoom: 18,
     });
