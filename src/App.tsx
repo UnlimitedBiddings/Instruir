@@ -15,7 +15,7 @@ import { ForgotPasswordPage } from "@/pages/auth/ForgotPasswordPage";
 
 // Student Pages
 import { ExplorePage } from "@/pages/student/ExplorePage";
-import { LessonsPage } from "@/pages/student/LessonsPage";
+import { InstructorProfilePage } from "@/pages/student/InstructorProfilePage";
 import { InstructorProfilePage } from "@/pages/student/InstructorProfilePage";
 import { SchoolProfilePage } from "@/pages/student/SchoolProfilePage";
 
