@@ -112,7 +112,7 @@ function AppRoutes() {
       {/* Redirects */}
       <Route path="/" element={
         isAuthenticated 
-          ? <Navigate to={userRole === 'professional' ? '/schedule' : '/explore'} replace />
+          ? <Navigate to="/explore" replace />
           : <Navigate to="/login" replace />
       } />
 
