@@ -51,7 +51,7 @@ interface ProfessionalProfileData {
   vehicle_has_ac: boolean | null;
   vehicle_image_url: string | null;
   // Empresa
-  provider_type: string | null;
+  provider_type: ProviderType | null;
   company_id: string | null;
   employment_type: string | null;
   cnpj: string | null;
