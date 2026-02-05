@@ -10,7 +10,7 @@ type TransmissionType = Database['public']['Enums']['transmission_type'];
 interface ProfessionalProfileData {
   id: string;
   user_id: string;
-  category: string;
+  category: ProfessionalCategory;
   bio: string | null;
   price_per_hour: number;
   rating: number | null;
