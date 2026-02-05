@@ -13,7 +13,7 @@ interface UserProfileData {
   email: string;
   phone: string | null;
   avatar_url: string | null;
-  role: string;
+  role: UserRole;
   // Dados pessoais expandidos (LGPD)
   cpf: string | null;
   birth_date: string | null;
