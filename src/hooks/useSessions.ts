@@ -75,67 +75,68 @@ export function useSessions() {
       setIsLoading(true);
       setError(null);
 
-      let query = supabase
+      // Get sessions for current user (as student or professional)
+      const { data: sessionsData, error: fetchError } = await supabase
         .from('sessions')
-        .select(`
-          *,
-          professional:professionals!sessions_professional_id_fkey(
-            id,
-            bio,
-            vehicle_model,
-            user_id
-          ),
-          student:students!sessions_student_id_fkey(
-            id,
-            user_id
-          )
-        `)
+        .select('*')
         .order('session_date', { ascending: true })
         .order('start_time', { ascending: true });
 
-      const { data, error: fetchError } = await query;
-
       if (fetchError) throw fetchError;
 
-      // Fetch profile names separately (due to relationship complexity)
-      const sessionsWithProfiles = await Promise.all(
-        (data || []).map(async (session) => {
+      // Fetch related data for each session
+      const sessionsWithDetails = await Promise.all(
+        (sessionsData || []).map(async (session) => {
+          // Get professional details
+          const { data: profData } = await supabase
+            .from('professionals')
+            .select('id, bio, vehicle_model, user_id')
+            .eq('id', session.professional_id)
+            .single();
+
+          // Get student details
+          const { data: studentData } = await supabase
+            .from('students')
+            .select('id, user_id')
+            .eq('id', session.student_id)
+            .single();
+
           let professionalProfile = null;
           let studentProfile = null;
 
-          if (session.professional?.user_id) {
+          if (profData?.user_id) {
             const { data: profProfile } = await supabase
               .from('profiles')
               .select('name, avatar_url')
-              .eq('user_id', session.professional.user_id)
+              .eq('user_id', profData.user_id)
               .single();
             professionalProfile = profProfile;
           }
 
-          if (session.student?.user_id) {
+          if (studentData?.user_id) {
             const { data: studProfile } = await supabase
               .from('profiles')
               .select('name, avatar_url, phone')
-              .eq('user_id', session.student.user_id)
+              .eq('user_id', studentData.user_id)
               .single();
             studentProfile = studProfile;
           }
 
           return {
             ...session,
-            professional: session.professional ? {
-              ...session.professional,
+            professional: profData ? {
+              ...profData,
               profile: professionalProfile,
             } : undefined,
-            student: session.student ? {
-              ...session.student,
+            student: studentData ? {
+              ...studentData,
               profile: studentProfile,
             } : undefined,
-          };
+          } as SessionData;
         })
       );
 
-      setSessions(sessionsWithProfiles);
+      setSessions(sessionsWithDetails);
     } catch (err: any) {
       setError(err.message);
       console.error('Error fetching sessions:', err);
