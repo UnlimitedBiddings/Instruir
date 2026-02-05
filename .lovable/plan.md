@@ -1,162 +1,353 @@
+# 📋 INSTRUIR - Plano de Análise e Finalização do Backend
 
-# Plano: Integração de Autoescolas no MVP ✅ CONCLUÍDO
+## 🎯 Resumo Executivo
 
-## Resumo Executivo
+### O que é o INSTRUIR?
+**INSTRUIR** é uma plataforma de marketplace digital que conecta **alunos** a **profissionais de ensino verificados** (instrutores de direção, professores de idiomas, música, etc.) e **empresas/autoescolas**, promovendo a formalização e regulamentação do setor de ensino particular no Brasil.
 
-Adicionadas **5 autoescolas** ao sistema de mapa, cada uma com **5 instrutores vinculados**, permitindo que alunos explorem tanto profissionais autônomos quanto autoescolas com seus pacotes de aulas.
+### Problema que Resolve
+1. **Informalidade no mercado de instrutores** - Milhares de profissionais atuam sem verificação de credenciais
+2. **Falta de transparência** - Alunos não têm como verificar antecedentes e qualificações
+3. **Desorganização de agendamentos** - Processos manuais via WhatsApp/telefone
+4. **Dificuldade de acesso** - Alunos não encontram profissionais próximos facilmente
+5. **Falta de rastreabilidade** - Sem histórico de aulas, pagamentos e avaliações
 
-**Status: ✅ Implementado com sucesso**
-
----
-
-## 1. Dados Mock das Autoescolas
-
-Criar dados de 5 autoescolas localizadas em diferentes regiões de São Paulo:
-
-| Autoescola | Região | Instrutores | Pacotes |
-|------------|--------|-------------|---------|
-| Auto Escola Paulista | Paulista/Centro | 5 | 3 pacotes |
-| CFC Pinheiros | Pinheiros/Itaim | 5 | 3 pacotes |
-| Auto Escola Moema | Moema/Brooklin | 5 | 3 pacotes |
-| CFC Vila Mariana | Vila Mariana/Saúde | 5 | 3 pacotes |
-| Auto Escola Consolação | Consolação/Higienópolis | 5 | 3 pacotes |
-
-**Total: 25 instrutores vinculados a autoescolas + 15 autônomos existentes = 40 profissionais**
+### Valor para Utilidade Pública
+- **Segurança cidadã**: Verificação de antecedentes criminais e CNH de instrutores
+- **Formalização do trabalho**: Incentivo à regularização de profissionais
+- **Transparência**: Avaliações públicas e histórico verificável
+- **Acessibilidade**: Localização geográfica de profissionais por região
+- **Regulamentação**: Alinhamento com DETRAN e órgãos reguladores
 
 ---
 
-## 2. Estrutura dos Pacotes de Aulas
+## 📊 Análise da Estrutura Atual
 
-Cada autoescola oferecerá 3 pacotes:
+### ✅ O que já existe (Implementado)
 
-| Pacote | Aulas | Preço | Inclui |
-|--------|-------|-------|--------|
-| Básico | 10 aulas | R$ 750 | Aulas práticas |
-| Completo | 20 aulas | R$ 1.400 | Aulas + simulado + taxa DETRAN |
-| Premium | 30 aulas | R$ 1.950 | Tudo + aulas extras de reforço |
+#### Banco de Dados (Supabase)
+| Tabela | Status | Descrição |
+|--------|--------|-----------|
+| `profiles` | ✅ Completo | Dados básicos do usuário |
+| `user_roles` | ✅ Completo | Sistema de permissões |
+| `professionals` | ✅ Completo | Dados do profissional |
+| `students` | ✅ Completo | Dados do aluno |
+| `companies` | ✅ Completo | Empresas/Autoescolas |
+| `service_packages` | ✅ Completo | Pacotes de aulas |
+| `sessions` | ✅ Completo | Agendamentos de aulas |
+| `reviews` | ✅ Completo | Avaliações |
+| `availability` | ✅ Completo | Disponibilidade |
+| `conversations` | ✅ Completo | Chat em tempo real |
+| `messages` | ✅ Completo | Mensagens do chat |
+| `notifications` | ✅ Completo | Notificações |
 
----
+#### Autenticação e Segurança
+- ✅ Autenticação via Supabase Auth
+- ✅ Verificação de e-mail obrigatória
+- ✅ RLS (Row Level Security) em todas as tabelas
+- ✅ Função `has_role` para controle de acesso
+- ✅ Trigger automático para criação de perfis
 
-## 3. Arquivos a Serem Modificados/Criados
-
-### 3.1 Mock Data (`src/data/mockData.ts`)
-- Adicionar `mockDrivingSchools` com 5 autoescolas
-- Adicionar `mockSchoolInstructors` com 25 instrutores (5 por escola)
-- Atualizar `mockInstructors` para incluir todos (autônomos + vinculados)
-- Cada instrutor vinculado terá `providerType: 'company'` e `companyId`
-
-### 3.2 Novo Componente: Card de Autoescola
-**Arquivo:** `src/components/school/SchoolCard.tsx`
-- Card animado para exibir autoescolas
-- Mostra logo, nome, avaliação, quantidade de instrutores
-- Badge indicando "Autoescola Verificada"
-- Preview dos pacotes disponíveis
-
-### 3.3 Nova Página: Perfil da Autoescola
-**Arquivo:** `src/pages/student/SchoolProfilePage.tsx`
-- Header com logo e informações da empresa
-- Lista de pacotes de aulas com preços
-- Grid de instrutores vinculados (clicáveis)
-- Avaliações da autoescola
-- Botão para agendar ou entrar em contato
-
-### 3.4 Atualização: Página Explorar
-**Arquivo:** `src/pages/student/ExplorePage.tsx`
-- Adicionar toggle: "Autônomos" | "Autoescolas" | "Todos"
-- Seção separada para autoescolas quando em modo "Autoescolas"
-- Indicador visual nos cards de instrutores vinculados
-
-### 3.5 Atualização: Mapa
-**Arquivo:** `src/components/map/InstructorMap.tsx`
-- Marcadores diferenciados para autoescolas (ícone de prédio)
-- InfoWindow customizado para autoescolas
-- Filtro por tipo de provedor
-
-### 3.6 Atualização: Card do Instrutor
-**Arquivo:** `src/components/instructor/AnimatedInstructorCard.tsx`
-- Badge indicando se é vinculado a uma autoescola
-- Link para a autoescola quando aplicável
-
-### 3.7 Rotas
-**Arquivo:** `src/App.tsx`
-- Nova rota: `/school/:id` → `SchoolProfilePage`
+#### Frontend
+- ✅ Sistema de navegação (Home/Chat/Perfil)
+- ✅ Mapa interativo com Google Maps
+- ✅ Perfis de instrutores e autoescolas
+- ✅ Sistema de avaliações
+- ✅ Chat em tempo real
+- ✅ Tema claro/escuro
 
 ---
 
-## 4. Fluxo de Navegação
+## 🚨 Áreas Críticas para Utilidade Pública
 
-```text
-ExplorePage
-    │
-    ├── Toggle: Autônomos/Autoescolas/Todos
-    │
-    ├── [Lista/Mapa de Autônomos]
-    │       └── InstructorCard → InstructorProfilePage
-    │
-    └── [Lista/Mapa de Autoescolas]
-            └── SchoolCard → SchoolProfilePage
-                    │
-                    ├── Ver Pacotes
-                    └── Ver Instrutores → InstructorProfilePage
+### 1. DADOS PESSOAIS E PRIVACIDADE (LGPD)
+**Status: 🔴 Crítico - Precisa implementar**
+
+#### Campos faltantes no banco:
+```sql
+-- Tabela professionals - Adicionar:
+- cpf (criptografado)
+- data_nascimento
+- rg
+- orgao_emissor
+- endereco_completo (criptografado)
+- cep
+- numero_cnh
+- categoria_cnh (A, B, AB, etc.)
+- validade_cnh
+- documento_cnh_url (storage)
+- documento_antecedentes_url (storage)
+- foto_documento_url (storage)
+
+-- Tabela profiles - Adicionar:
+- cpf (criptografado)
+- data_nascimento
+- genero
+- endereco_completo
+- cep
+- aceite_termos_uso (timestamp)
+- aceite_lgpd (timestamp)
+```
+
+#### Medidas de segurança necessárias:
+- [ ] Criptografia de dados sensíveis (CPF, endereço)
+- [ ] Política de retenção de dados
+- [ ] Logs de acesso a dados pessoais
+- [ ] Opção de exclusão de conta (direito ao esquecimento)
+- [ ] Exportação de dados pessoais
+
+### 2. VERIFICAÇÃO DE CREDENCIAIS
+**Status: 🟡 Parcial - Campos existem, falta integração**
+
+#### Sistema de verificação necessário:
+| Verificação | Status | Integração |
+|-------------|--------|------------|
+| Identidade (RG/CPF) | 🟡 Campo existe | Validação manual |
+| CNH | 🟡 Campo existe | API DETRAN |
+| Antecedentes Criminais | 🟡 Campo existe | API Polícia Federal |
+| Veículo (placa/documento) | 🔴 Falta campo | API DETRAN |
+| Endereço | 🟡 Campo existe | API ViaCEP |
+
+### 3. DADOS DO VEÍCULO
+**Status: 🟡 Parcial - Precisa expandir**
+
+#### Campos faltantes:
+```sql
+-- Tabela professionals ou nova tabela vehicles:
+- placa_veiculo
+- renavam
+- chassi
+- documento_veiculo_url
+- seguro_obrigatorio (DPVAT)
+- vistoria_detran_url
+- validade_vistoria
+- seguro_particular
+- validade_seguro
+```
+
+### 4. ZONA DE ATENDIMENTO
+**Status: 🟡 Parcial - Precisa melhorar**
+
+#### Campos faltantes:
+```sql
+-- Tabela professionals:
+- raio_atendimento_km (número)
+- bairros_atendidos (array)
+- cidades_atendidas (array)
+- aceita_deslocamento (boolean)
+- taxa_deslocamento_km (número)
+```
+
+### 5. DADOS BANCÁRIOS/FINANCEIROS
+**Status: 🔴 Crítico - Não existe**
+
+#### Nova tabela necessária:
+```sql
+CREATE TABLE professional_bank_accounts (
+  id UUID PRIMARY KEY,
+  professional_id UUID REFERENCES professionals(id),
+  banco_codigo TEXT,
+  banco_nome TEXT,
+  agencia TEXT,
+  conta TEXT,
+  tipo_conta TEXT, -- corrente, poupança, pagamento
+  titular_nome TEXT,
+  titular_cpf TEXT (criptografado),
+  pix_tipo TEXT, -- cpf, email, telefone, aleatoria
+  pix_chave TEXT (criptografado),
+  comprovante_url TEXT,
+  verificado BOOLEAN DEFAULT false,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+);
+```
+
+### 6. HISTÓRICO E AUDITORIA
+**Status: 🔴 Crítico - Não existe**
+
+#### Tabelas necessárias:
+```sql
+-- Logs de auditoria
+CREATE TABLE audit_logs (
+  id UUID PRIMARY KEY,
+  user_id UUID,
+  action TEXT,
+  table_name TEXT,
+  record_id UUID,
+  old_data JSONB,
+  new_data JSONB,
+  ip_address TEXT,
+  user_agent TEXT,
+  created_at TIMESTAMP
+);
+
+-- Histórico de verificações
+CREATE TABLE verification_history (
+  id UUID PRIMARY KEY,
+  professional_id UUID,
+  verification_type TEXT,
+  status TEXT,
+  verified_by UUID,
+  verification_date TIMESTAMP,
+  expiry_date TIMESTAMP,
+  document_url TEXT,
+  notes TEXT
+);
 ```
 
 ---
 
-## 5. Design Visual
+## 📐 Plano de Implementação
 
-### Diferenciação Visual
+### Fase 1: Fundação de Dados (Prioridade Alta)
+**Estimativa: 2-3 dias**
 
-| Elemento | Autônomo | Autoescola |
-|----------|----------|------------|
-| Marcador no mapa | Avatar circular | Ícone de prédio com logo |
-| Badge | "Verificado" (verde) | "Autoescola" (azul) |
-| Card | Individual | Mostra logo + qtd instrutores |
+1. **Migração do banco de dados**
+   - Adicionar campos de dados pessoais
+   - Criar tabela de contas bancárias
+   - Criar tabela de veículos expandida
+   - Criar tabela de auditoria
 
-### Cores
-- Autônomos: Verde (accent atual)
-- Autoescolas: Azul (#3B82F6)
+2. **Storage seguro**
+   - Bucket para documentos (CNH, RG, antecedentes)
+   - Bucket para fotos de perfil
+   - Bucket para documentos de veículos
+   - Políticas de acesso restrito
+
+### Fase 2: Formulários e Validação (Prioridade Alta)
+**Estimativa: 3-4 dias**
+
+1. **Onboarding de profissional completo**
+   - Etapa 1: Dados pessoais
+   - Etapa 2: Documentos (upload CNH, RG)
+   - Etapa 3: Veículo (dados e documentos)
+   - Etapa 4: Zona de atendimento
+   - Etapa 5: Dados bancários
+   - Etapa 6: Termos e aceites
+
+2. **Validação de campos**
+   - CPF válido
+   - CEP com autopreenchimento
+   - Placa de veículo válida
+   - Conta bancária válida
+
+### Fase 3: Integrações Externas (Prioridade Média)
+**Estimativa: 5-7 dias**
+
+1. **APIs a integrar**
+   - ViaCEP (endereço)
+   - Validação CPF/CNPJ
+   - *Futuro: DETRAN (CNH)
+   - *Futuro: Polícia Federal (antecedentes)
+
+2. **Edge Functions necessárias**
+   - `validate-cpf` - Validação de CPF
+   - `validate-cep` - Busca endereço
+   - `validate-vehicle` - Validação de placa
+   - `process-payment` - Integração Stripe/Pix
+
+### Fase 4: Painel Administrativo (Prioridade Média)
+**Estimativa: 4-5 dias**
+
+1. **Dashboard admin**
+   - Listagem de profissionais pendentes
+   - Verificação manual de documentos
+   - Aprovação/rejeição de cadastros
+   - Relatórios e métricas
 
 ---
 
-## 6. Detalhes Técnicos
+## 📄 Documentação para Validação Governamental
 
-### Tipos a adicionar em `src/types/index.ts`
-- `DrivingSchool` já existe como alias de `Company`
-- `ServicePackage` já existe
-- Adicionar campo `location` ao tipo `Company` para exibição no mapa
+### Informações do Produto
 
-### Componentes Reutilizados
-- `RatingStars` para avaliações
-- `VerificationBadge` adaptado para empresas
-- Animações do Framer Motion consistentes
+**Nome**: INSTRUIR  
+**Tipo**: Plataforma Digital de Marketplace de Ensino  
+**Categoria**: Economia Colaborativa / EdTech  
+**Público-alvo**: 
+- Alunos buscando profissionais de ensino
+- Instrutores de direção, professores, tutores
+- Autoescolas e centros de ensino
 
-### Responsividade
-- Cards adaptados para mobile
-- Scroll horizontal de pacotes
-- Grid responsivo de instrutores na página da escola
+### Problema Social que Resolve
+
+1. **Segurança no transporte**
+   - Verifica se instrutores possuem CNH válida
+   - Checa antecedentes criminais
+   - Inspeciona veículos usados nas aulas
+
+2. **Formalização do trabalho**
+   - Incentiva emissão de MEI/CNPJ
+   - Rastreia pagamentos e emissão de notas
+   - Cria histórico profissional verificável
+
+3. **Transparência para o consumidor**
+   - Avaliações públicas de alunos
+   - Perfis verificados com selos de confiança
+   - Preços transparentes e comparáveis
+
+### Alinhamento Regulatório
+
+| Órgão | Alinhamento |
+|-------|-------------|
+| DETRAN | Verificação de CNH e veículos |
+| LGPD/ANPD | Proteção de dados pessoais |
+| PROCON | Transparência de preços e contratos |
+| Receita Federal | CPF/CNPJ verificados |
+
+### Métricas de Impacto
+
+- Número de profissionais verificados
+- Número de aulas realizadas
+- Taxa de satisfação (avaliações)
+- Índice de formalização
 
 ---
 
-## 7. Ordem de Implementação
+## ✅ Checklist de Implementação
 
-1. **Atualizar tipos** - Adicionar `location` ao `Company`
-2. **Criar mock data** - 5 autoescolas + 25 instrutores
-3. **Criar SchoolCard** - Componente de card de autoescola
-4. **Criar SchoolProfilePage** - Página de perfil
-5. **Atualizar ExplorePage** - Toggle e seções
-6. **Atualizar InstructorMap** - Marcadores de autoescolas
-7. **Atualizar AnimatedInstructorCard** - Badge de vínculo
-8. **Adicionar rota** - /school/:id
+### Backend (Banco de Dados)
+- [ ] Adicionar campos de dados pessoais em `profiles`
+- [ ] Adicionar campos de documentos em `professionals`
+- [ ] Criar tabela `professional_bank_accounts`
+- [ ] Criar tabela `vehicles` (expandida)
+- [ ] Criar tabela `audit_logs`
+- [ ] Criar tabela `verification_history`
+- [ ] Configurar Storage buckets seguros
+- [ ] Implementar criptografia de dados sensíveis
+
+### Edge Functions
+- [ ] `validate-cpf` - Validação de CPF
+- [ ] `validate-cep` - Busca endereço (ViaCEP)
+- [ ] `validate-bank-account` - Validação bancária
+- [ ] `upload-document` - Upload seguro de documentos
+
+### Frontend
+- [ ] Formulário de onboarding completo (profissional)
+- [ ] Página de edição de perfil expandida
+- [ ] Upload de documentos com preview
+- [ ] Configuração de zona de atendimento (mapa)
+- [ ] Gestão de conta bancária
+- [ ] Termos de uso e política de privacidade
+
+### Segurança
+- [ ] LGPD compliance
+- [ ] Logs de auditoria
+- [ ] Backup de dados
+- [ ] Política de retenção
 
 ---
 
-## Resultado Esperado
+## 🚀 Próximos Passos Recomendados
 
-Após a implementação, o aluno poderá:
+1. **Aprovar este plano** - Confirmar escopo e prioridades
+2. **Executar migrações** - Criar novas tabelas e campos
+3. **Implementar formulários** - Onboarding e edição de perfil
+4. **Integrar APIs** - Validações externas
+5. **Testar fluxos** - QA completo
+6. **Documentar API** - Para integração com órgãos
 
-1. Alternar entre visualizar autônomos, autoescolas ou todos
-2. Ver autoescolas no mapa com marcadores diferenciados
-3. Acessar o perfil de uma autoescola com seus pacotes
-4. Ver os instrutores vinculados à autoescola
-5. Agendar aulas diretamente ou através de pacotes
-6. Identificar visualmente se um instrutor é autônomo ou vinculado
+---
+
+*Documento gerado em: Fevereiro 2026*  
+*Versão: 1.0*
