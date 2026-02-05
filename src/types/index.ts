@@ -129,12 +129,109 @@ export type LessonPackage = ServicePackage;
 // VEÍCULO (Para instrutores de direção)
 // ============================================
 export interface Vehicle {
+  id?: string;
+  professionalId?: string;
+  plate?: string;
+  brand?: string;
   model: string;
   year: number;
   color: string;
   transmission: 'manual' | 'automatic';
   hasAirConditioning: boolean;
+  hasDualControls?: boolean;
+  renavam?: string;
+  chassis?: string;
+  vehicleDocumentUrl?: string;
+  insuranceCompany?: string;
+  insurancePolicyNumber?: string;
+  insuranceExpiry?: Date;
+  inspectionUrl?: string;
+  inspectionExpiry?: Date;
+  dpvatPaid?: boolean;
+  isPrimary?: boolean;
+  isActive?: boolean;
   image?: string;
+}
+
+// ============================================
+// CONTA BANCÁRIA / PIX
+// ============================================
+export interface BankAccount {
+  id: string;
+  professionalId: string;
+  bankCode: string;
+  bankName: string;
+  agency: string;
+  accountNumber: string;
+  accountType: 'checking' | 'savings' | 'payment';
+  holderName: string;
+  holderCpf: string;
+  pixKeyType?: 'cpf' | 'email' | 'phone' | 'random';
+  pixKey?: string;
+  proofUrl?: string;
+  isVerified: boolean;
+  isPrimary: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+// ============================================
+// HISTÓRICO DE VERIFICAÇÃO
+// ============================================
+export interface VerificationHistoryItem {
+  id: string;
+  professionalId: string;
+  verificationType: 'identity' | 'cnh' | 'criminal_record' | 'vehicle' | 'address' | 'bank_account';
+  status: 'pending' | 'approved' | 'rejected' | 'expired';
+  verifiedBy?: string;
+  verificationDate?: Date;
+  expiryDate?: Date;
+  documentUrl?: string;
+  notes?: string;
+  rejectionReason?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ============================================
+// DADOS PESSOAIS EXPANDIDOS (LGPD)
+// ============================================
+export interface PersonalData {
+  cpf?: string;
+  birthDate?: Date;
+  gender?: string;
+  address?: string;
+  addressNumber?: string;
+  addressComplement?: string;
+  neighborhood?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  termsAcceptedAt?: Date;
+  privacyAcceptedAt?: Date;
+}
+
+// ============================================
+// DADOS PROFISSIONAIS EXPANDIDOS
+// ============================================
+export interface ProfessionalDocuments {
+  rg?: string;
+  rgIssuer?: string;
+  cnhNumber?: string;
+  cnhCategory?: string;
+  cnhExpiry?: Date;
+  cnhDocumentUrl?: string;
+  criminalRecordUrl?: string;
+  criminalRecordVerified?: boolean;
+  profileDocumentUrl?: string;
+}
+
+export interface ServiceZoneConfig {
+  serviceRadiusKm: number;
+  acceptsDisplacement: boolean;
+  displacementFeePerKm: number;
+  neighborhoodsServed?: string[];
+  citiesServed?: string[];
 }
 
 // ============================================
