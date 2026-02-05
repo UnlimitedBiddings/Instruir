@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          new_data: Json | null
+          old_data: Json | null
+          record_id: string | null
+          table_name: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string | null
+          table_name?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       availability: {
         Row: {
           created_at: string
@@ -202,28 +241,107 @@ export type Database = {
         }
         Relationships: []
       }
+      professional_bank_accounts: {
+        Row: {
+          account_number: string
+          account_type: string
+          agency: string
+          bank_code: string
+          bank_name: string
+          created_at: string
+          holder_cpf: string
+          holder_name: string
+          id: string
+          is_primary: boolean | null
+          is_verified: boolean | null
+          pix_key: string | null
+          pix_key_type: string | null
+          professional_id: string
+          proof_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          account_number: string
+          account_type: string
+          agency: string
+          bank_code: string
+          bank_name: string
+          created_at?: string
+          holder_cpf: string
+          holder_name: string
+          id?: string
+          is_primary?: boolean | null
+          is_verified?: boolean | null
+          pix_key?: string | null
+          pix_key_type?: string | null
+          professional_id: string
+          proof_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          account_number?: string
+          account_type?: string
+          agency?: string
+          bank_code?: string
+          bank_name?: string
+          created_at?: string
+          holder_cpf?: string
+          holder_name?: string
+          id?: string
+          is_primary?: boolean | null
+          is_verified?: boolean | null
+          pix_key?: string | null
+          pix_key_type?: string | null
+          professional_id?: string
+          proof_url?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_bank_accounts_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       professionals: {
         Row: {
+          accepts_displacement: boolean | null
           address: string | null
           background_verified: boolean | null
           bio: string | null
           category: Database["public"]["Enums"]["professional_category"]
+          cities_served: string[] | null
           city: string | null
+          cnh_category: string | null
+          cnh_document_url: string | null
+          cnh_expiry: string | null
+          cnh_number: string | null
           cnh_verified: boolean | null
           cnpj: string | null
           company_id: string | null
           created_at: string
           credentials_verified: boolean | null
+          criminal_record_url: string | null
+          criminal_record_verified: boolean | null
+          displacement_fee_per_km: number | null
           employment_type: string | null
           experience_years: number | null
           id: string
           identity_verified: boolean | null
           latitude: number | null
           longitude: number | null
+          neighborhoods_served: string[] | null
           price_per_hour: number
+          profile_document_url: string | null
           provider_type: Database["public"]["Enums"]["provider_type"] | null
           rating: number | null
           review_count: number | null
+          rg: string | null
+          rg_issuer: string | null
+          service_radius_km: number | null
           service_zones: string[] | null
           skills: string[] | null
           specializations: string[] | null
@@ -241,26 +359,40 @@ export type Database = {
           vehicle_year: number | null
         }
         Insert: {
+          accepts_displacement?: boolean | null
           address?: string | null
           background_verified?: boolean | null
           bio?: string | null
           category: Database["public"]["Enums"]["professional_category"]
+          cities_served?: string[] | null
           city?: string | null
+          cnh_category?: string | null
+          cnh_document_url?: string | null
+          cnh_expiry?: string | null
+          cnh_number?: string | null
           cnh_verified?: boolean | null
           cnpj?: string | null
           company_id?: string | null
           created_at?: string
           credentials_verified?: boolean | null
+          criminal_record_url?: string | null
+          criminal_record_verified?: boolean | null
+          displacement_fee_per_km?: number | null
           employment_type?: string | null
           experience_years?: number | null
           id?: string
           identity_verified?: boolean | null
           latitude?: number | null
           longitude?: number | null
+          neighborhoods_served?: string[] | null
           price_per_hour: number
+          profile_document_url?: string | null
           provider_type?: Database["public"]["Enums"]["provider_type"] | null
           rating?: number | null
           review_count?: number | null
+          rg?: string | null
+          rg_issuer?: string | null
+          service_radius_km?: number | null
           service_zones?: string[] | null
           skills?: string[] | null
           specializations?: string[] | null
@@ -278,26 +410,40 @@ export type Database = {
           vehicle_year?: number | null
         }
         Update: {
+          accepts_displacement?: boolean | null
           address?: string | null
           background_verified?: boolean | null
           bio?: string | null
           category?: Database["public"]["Enums"]["professional_category"]
+          cities_served?: string[] | null
           city?: string | null
+          cnh_category?: string | null
+          cnh_document_url?: string | null
+          cnh_expiry?: string | null
+          cnh_number?: string | null
           cnh_verified?: boolean | null
           cnpj?: string | null
           company_id?: string | null
           created_at?: string
           credentials_verified?: boolean | null
+          criminal_record_url?: string | null
+          criminal_record_verified?: boolean | null
+          displacement_fee_per_km?: number | null
           employment_type?: string | null
           experience_years?: number | null
           id?: string
           identity_verified?: boolean | null
           latitude?: number | null
           longitude?: number | null
+          neighborhoods_served?: string[] | null
           price_per_hour?: number
+          profile_document_url?: string | null
           provider_type?: Database["public"]["Enums"]["provider_type"] | null
           rating?: number | null
           review_count?: number | null
+          rg?: string | null
+          rg_issuer?: string | null
+          service_radius_km?: number | null
           service_zones?: string[] | null
           skills?: string[] | null
           specializations?: string[] | null
@@ -326,37 +472,73 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
+          address_complement: string | null
+          address_number: string | null
           avatar_url: string | null
+          birth_date: string | null
+          city: string | null
+          cpf: string | null
           created_at: string
           email: string
+          gender: string | null
           id: string
           name: string
+          neighborhood: string | null
           phone: string | null
+          privacy_accepted_at: string | null
           role: Database["public"]["Enums"]["user_role"]
+          state: string | null
+          terms_accepted_at: string | null
           updated_at: string
           user_id: string
+          zip_code: string | null
         }
         Insert: {
+          address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
           avatar_url?: string | null
+          birth_date?: string | null
+          city?: string | null
+          cpf?: string | null
           created_at?: string
           email: string
+          gender?: string | null
           id?: string
           name: string
+          neighborhood?: string | null
           phone?: string | null
+          privacy_accepted_at?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          state?: string | null
+          terms_accepted_at?: string | null
           updated_at?: string
           user_id: string
+          zip_code?: string | null
         }
         Update: {
+          address?: string | null
+          address_complement?: string | null
+          address_number?: string | null
           avatar_url?: string | null
+          birth_date?: string | null
+          city?: string | null
+          cpf?: string | null
           created_at?: string
           email?: string
+          gender?: string | null
           id?: string
           name?: string
+          neighborhood?: string | null
           phone?: string | null
+          privacy_accepted_at?: string | null
           role?: Database["public"]["Enums"]["user_role"]
+          state?: string | null
+          terms_accepted_at?: string | null
           updated_at?: string
           user_id?: string
+          zip_code?: string | null
         }
         Relationships: []
       }
@@ -578,6 +760,148 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      vehicles: {
+        Row: {
+          brand: string
+          chassis: string | null
+          color: string
+          created_at: string
+          dpvat_paid: boolean | null
+          has_ac: boolean | null
+          has_dual_controls: boolean | null
+          id: string
+          image_url: string | null
+          inspection_expiry: string | null
+          inspection_url: string | null
+          insurance_company: string | null
+          insurance_expiry: string | null
+          insurance_policy_number: string | null
+          is_active: boolean | null
+          is_primary: boolean | null
+          model: string
+          plate: string
+          professional_id: string
+          renavam: string | null
+          transmission: string
+          updated_at: string
+          vehicle_document_url: string | null
+          year: number
+        }
+        Insert: {
+          brand: string
+          chassis?: string | null
+          color: string
+          created_at?: string
+          dpvat_paid?: boolean | null
+          has_ac?: boolean | null
+          has_dual_controls?: boolean | null
+          id?: string
+          image_url?: string | null
+          inspection_expiry?: string | null
+          inspection_url?: string | null
+          insurance_company?: string | null
+          insurance_expiry?: string | null
+          insurance_policy_number?: string | null
+          is_active?: boolean | null
+          is_primary?: boolean | null
+          model: string
+          plate: string
+          professional_id: string
+          renavam?: string | null
+          transmission: string
+          updated_at?: string
+          vehicle_document_url?: string | null
+          year: number
+        }
+        Update: {
+          brand?: string
+          chassis?: string | null
+          color?: string
+          created_at?: string
+          dpvat_paid?: boolean | null
+          has_ac?: boolean | null
+          has_dual_controls?: boolean | null
+          id?: string
+          image_url?: string | null
+          inspection_expiry?: string | null
+          inspection_url?: string | null
+          insurance_company?: string | null
+          insurance_expiry?: string | null
+          insurance_policy_number?: string | null
+          is_active?: boolean | null
+          is_primary?: boolean | null
+          model?: string
+          plate?: string
+          professional_id?: string
+          renavam?: string | null
+          transmission?: string
+          updated_at?: string
+          vehicle_document_url?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicles_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      verification_history: {
+        Row: {
+          created_at: string
+          document_url: string | null
+          expiry_date: string | null
+          id: string
+          notes: string | null
+          professional_id: string
+          rejection_reason: string | null
+          status: string
+          updated_at: string
+          verification_date: string | null
+          verification_type: string
+          verified_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          document_url?: string | null
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          professional_id: string
+          rejection_reason?: string | null
+          status: string
+          updated_at?: string
+          verification_date?: string | null
+          verification_type: string
+          verified_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          document_url?: string | null
+          expiry_date?: string | null
+          id?: string
+          notes?: string | null
+          professional_id?: string
+          rejection_reason?: string | null
+          status?: string
+          updated_at?: string
+          verification_date?: string | null
+          verification_type?: string
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_history_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
