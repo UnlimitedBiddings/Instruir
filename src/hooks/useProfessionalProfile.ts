@@ -47,7 +47,7 @@ interface ProfessionalProfileData {
   vehicle_model: string | null;
   vehicle_year: number | null;
   vehicle_color: string | null;
-  vehicle_transmission: string | null;
+  vehicle_transmission: TransmissionType | null;
   vehicle_has_ac: boolean | null;
   vehicle_image_url: string | null;
   // Empresa
