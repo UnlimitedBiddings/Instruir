@@ -18,10 +18,17 @@ import {
   LogOut,
   Bell,
   HelpCircle,
-  CreditCard
+  CreditCard,
+  Edit,
+  Camera
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { 
+  ProfessionalDashboardStats, 
+  StudentDashboardStats 
+} from '@/components/dashboard/DashboardStats';
+import { UpcomingSessionsList } from '@/components/dashboard/UpcomingSessionsList';
 
 // Profile Header Component
 function ProfileHeader() {
@@ -29,30 +36,49 @@ function ProfileHeader() {
   const isProfessional = userRole === 'professional';
 
   return (
-    <div className="bg-card border-b border-border px-4 pt-4 pb-6 safe-area-top">
-      <div className="flex items-center gap-4">
-        {profile?.avatar_url ? (
-          <img
-            src={profile.avatar_url}
-            alt={profile.name}
-            className="h-20 w-20 rounded-2xl object-cover"
-          />
-        ) : (
-          <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center">
-            <User className="h-10 w-10 text-primary" />
+    <div className="bg-gradient-to-br from-primary/10 via-background to-accent/5 border-b border-border px-4 pt-4 pb-6 safe-area-top">
+      <div className="flex items-start gap-4">
+        <div className="relative">
+          {profile?.avatar_url ? (
+            <img
+              src={profile.avatar_url}
+              alt={profile.name}
+              className="h-20 w-20 rounded-2xl object-cover ring-2 ring-primary/20"
+            />
+          ) : (
+            <div className="h-20 w-20 rounded-2xl bg-primary/10 flex items-center justify-center ring-2 ring-primary/20">
+              <User className="h-10 w-10 text-primary" />
+            </div>
+          )}
+          <button className="absolute -bottom-1 -right-1 p-1.5 bg-primary rounded-full text-primary-foreground shadow-lg hover:bg-primary/90 transition-colors">
+            <Camera className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <h2 className="font-display text-xl font-bold truncate">{profile?.name}</h2>
+              <p className="text-muted-foreground text-sm truncate">{profile?.email}</p>
+            </div>
+            <Button variant="ghost" size="icon" className="shrink-0">
+              <Edit className="h-4 w-4" />
+            </Button>
           </div>
-        )}
-        <div className="flex-1">
-          <h2 className="font-display text-xl font-bold">{profile?.name}</h2>
-          <p className="text-muted-foreground text-sm">{profile?.email}</p>
           
           {isProfessional && (
             <div className="flex items-center gap-3 mt-2">
-              <div className="flex items-center gap-1 text-muted-foreground">
-                <Shield className="h-4 w-4 text-accent" />
-                <span className="text-sm">Verificado</span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 bg-accent/10 rounded-full">
+                <Shield className="h-3.5 w-3.5 text-accent" />
+                <span className="text-xs font-medium text-accent">Verificado</span>
               </div>
             </div>
+          )}
+          
+          {!isProfessional && (
+            <p className="text-xs text-muted-foreground mt-2">
+              Membro desde {new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+            </p>
           )}
         </div>
       </div>
@@ -65,60 +91,28 @@ function ScheduleTab() {
   const { userRole } = useAuth();
   const isProfessional = userRole === 'professional';
 
-  const mockLessons = [
-    { id: 1, date: new Date(), time: '09:00', person: isProfessional ? 'Maria Silva' : 'Carlos Instrutor', status: 'confirmed' },
-    { id: 2, date: new Date(), time: '14:00', person: isProfessional ? 'João Santos' : 'Ana Instrutora', status: 'pending' },
-  ];
-
   return (
-    <div className="p-4 space-y-4">
-      <h3 className="font-display font-semibold text-lg">
-        {isProfessional ? 'Minha Agenda' : 'Minhas Aulas'}
-      </h3>
-      
-      {mockLessons.length > 0 ? (
-        <div className="space-y-3">
-          {mockLessons.map((lesson) => (
-            <div 
-              key={lesson.id}
-              className="card-elevated p-4 flex items-center gap-4"
-            >
-              <div className={cn(
-                "w-1 h-14 rounded-full",
-                lesson.status === 'confirmed' ? "bg-success" : "bg-warning"
-              )} />
-              <div className="flex-1">
-                <p className="font-semibold">{lesson.person}</p>
-                <div className="flex items-center gap-1 text-sm text-muted-foreground mt-0.5">
-                  <Calendar className="h-3.5 w-3.5" />
-                  <span>Hoje às {lesson.time}</span>
-                  <span className="mx-1">•</span>
-                  <span className={cn(
-                    lesson.status === 'confirmed' ? "text-success" : "text-warning"
-                  )}>
-                    {lesson.status === 'confirmed' ? 'Confirmada' : 'Pendente'}
-                  </span>
-                </div>
-              </div>
-              <Button variant="outline" size="sm">
-                Detalhes
-              </Button>
-            </div>
-          ))}
-        </div>
+    <div className="p-4 space-y-6">
+      {/* Stats Overview */}
+      {isProfessional ? (
+        <ProfessionalDashboardStats />
       ) : (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-            <Calendar className="h-8 w-8 text-muted-foreground" />
-          </div>
-          <h4 className="font-display font-semibold text-lg mb-2">
-            Nenhuma aula agendada
-          </h4>
-          <p className="text-muted-foreground">
-            {isProfessional ? 'Você não tem aulas hoje.' : 'Agende sua primeira aula!'}
-          </p>
-        </div>
+        <StudentDashboardStats />
       )}
+
+      {/* Upcoming Sessions */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="font-display font-semibold text-lg">
+            Próximas Aulas
+          </h3>
+          <Button variant="ghost" size="sm" className="text-primary">
+            Ver todas
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </Button>
+        </div>
+        <UpcomingSessionsList />
+      </div>
     </div>
   );
 }
@@ -218,7 +212,7 @@ function SettingsTab() {
     {
       icon: User,
       label: 'Dados pessoais',
-      description: 'Nome, e-mail, telefone',
+      description: 'Nome, e-mail, telefone, CPF',
       onClick: () => {},
     },
     ...(isProfessional ? [
@@ -234,6 +228,12 @@ function SettingsTab() {
         description: 'Regiões onde você atua',
         onClick: () => {},
       },
+      {
+        icon: Shield,
+        label: 'Documentos',
+        description: 'CNH, antecedentes, verificações',
+        onClick: () => {},
+      },
     ] : []),
     {
       icon: CreditCard,
@@ -245,7 +245,7 @@ function SettingsTab() {
       icon: Bell,
       label: 'Notificações',
       description: 'Preferências de alertas',
-      onClick: () => {},
+      onClick: () => navigate('/notifications'),
     },
     {
       icon: HelpCircle,
@@ -344,6 +344,11 @@ function SettingsTab() {
         <LogOut className="h-5 w-5 mr-2" />
         Sair da conta
       </Button>
+
+      {/* Version */}
+      <p className="text-center text-xs text-muted-foreground pt-4">
+        Instruir v1.0.0 • © 2025
+      </p>
     </div>
   );
 }
