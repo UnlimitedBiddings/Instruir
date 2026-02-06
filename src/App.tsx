@@ -12,6 +12,8 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import { LoginPage } from "@/pages/auth/LoginPage";
 import { RegisterPage } from "@/pages/auth/RegisterPage";
 import { ForgotPasswordPage } from "@/pages/auth/ForgotPasswordPage";
+import { VerifyEmailPage } from "@/pages/auth/VerifyEmailPage";
+import { ResetPasswordPage } from "@/pages/auth/ResetPasswordPage";
 
 // Student Pages
 import { ExplorePage } from "@/pages/student/ExplorePage";
@@ -84,6 +86,10 @@ function AppRoutes() {
           ? <Navigate to="/explore" replace />
           : <ForgotPasswordPage />
       } />
+      
+      {/* Email Verification & Password Reset (accessible always) */}
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
 
       {/* Protected App Routes */}
       <Route element={

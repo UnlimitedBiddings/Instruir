@@ -328,8 +328,14 @@ CREATE TABLE verification_history (
 - [x] `useValidation` - Validações de CPF, CEP e conta bancária
 - [x] `useSessions` - Gerenciamento de aulas/sessões
 - [x] `useAvailability` - Gerenciamento de disponibilidade
+- [x] `useDashboardStats` - Estatísticas do dashboard
 
-### Frontend (UI)
+### Frontend (UI) - Fase 1
+- [x] Logo e favicon personalizados
+- [x] Dashboard com estatísticas para aluno e profissional
+- [x] Lista de sessões próximas
+- [x] Fluxo de verificação de e-mail (VerifyEmailPage)
+- [x] Fluxo de redefinição de senha (ResetPasswordPage)
 - [ ] Formulário de onboarding completo (profissional)
 - [ ] Página de edição de perfil expandida
 - [ ] Upload de documentos com preview
@@ -353,8 +359,9 @@ CREATE TABLE verification_history (
 | 1. Fundação de Dados | ✅ Completo | Migrações SQL executadas, tabelas criadas |
 | 2. Edge Functions | ✅ Completo | validate-cpf, validate-cep, validate-bank-account |
 | 3. Hooks React | ✅ Completo | Todos os hooks de dados implementados |
-| 4. UI/Formulários | 🔄 Pendente | Formulários de onboarding e edição |
-| 5. Integrações | 🔄 Pendente | APIs externas (DETRAN, PF - futuro) |
+| 4. Fase 1 - Estabilização | ✅ Completo | Build OK, dashboard, logo, verificação e-mail |
+| 5. Fase 2 - Marketplace | 🔄 Pendente | Agendamento, pagamento, chat, filtros |
+| 6. Fase 3 - Expansão | 🔄 Pendente | Avaliações, B2B2C, UX |
 
 ---
 
