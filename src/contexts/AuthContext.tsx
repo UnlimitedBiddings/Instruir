@@ -14,6 +14,12 @@ interface UserProfile {
   role: UserRole;
 }
 
+interface SubscriptionStatus {
+  subscribed: boolean;
+  planType: 'monthly' | 'annual' | null;
+  subscriptionEnd: string | null;
+}
+
 interface AuthContextType {
   user: SupabaseUser | null;
   profile: UserProfile | null;
@@ -21,6 +27,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   userRole: UserRole | null;
+  subscription: SubscriptionStatus;
+  checkSubscription: () => Promise<void>;
   login: (email: string, password: string) => Promise<{ error?: string }>;
   register: (data: RegisterData) => Promise<{ error?: string; needsEmailConfirmation?: boolean }>;
   logout: () => Promise<void>;
@@ -37,11 +45,18 @@ interface RegisterData {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const defaultSubscription: SubscriptionStatus = {
+  subscribed: false,
+  planType: null,
+  subscriptionEnd: null,
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [subscription, setSubscription] = useState<SubscriptionStatus>(defaultSubscription);
 
   // Fetch user profile from database
   const fetchProfile = useCallback(async (userId: string) => {
@@ -64,29 +79,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  // Check subscription status
+  const checkSubscription = useCallback(async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('check-subscription');
+      if (error) {
+        console.error('Error checking subscription:', error);
+        return;
+      }
+      setSubscription({
+        subscribed: data?.subscribed ?? false,
+        planType: data?.plan_type ?? null,
+        subscriptionEnd: data?.subscription_end ?? null,
+      });
+    } catch (error) {
+      console.error('Error checking subscription:', error);
+    }
+  }, []);
+
   // Initialize auth state
   useEffect(() => {
-    // Set up auth state listener BEFORE checking session
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    const { data: { subscription: authSub } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
 
         if (currentSession?.user) {
-          // Use setTimeout to avoid potential race conditions
           setTimeout(async () => {
             const userProfile = await fetchProfile(currentSession.user.id);
             setProfile(userProfile);
           }, 0);
         } else {
           setProfile(null);
+          setSubscription(defaultSubscription);
         }
 
         setIsLoading(false);
       }
     );
 
-    // Check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       setSession(currentSession);
       setUser(currentSession?.user ?? null);
@@ -99,16 +130,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     return () => {
-      subscription.unsubscribe();
+      authSub.unsubscribe();
     };
   }, [fetchProfile]);
 
+  // Check subscription when session changes
+  useEffect(() => {
+    if (session) {
+      checkSubscription();
+      const interval = setInterval(checkSubscription, 60000);
+      return () => clearInterval(interval);
+    }
+  }, [session, checkSubscription]);
+
   const login = useCallback(async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
         if (error.message === 'Email not confirmed') {
@@ -154,7 +191,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return { error: error.message };
       }
 
-      // Check if email confirmation is required
       if (authData.user && !authData.session) {
         return { needsEmailConfirmation: true };
       }
@@ -177,6 +213,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(null);
       setProfile(null);
       setSession(null);
+      setSubscription(defaultSubscription);
       toast.success('Logout realizado com sucesso!');
     } catch (error) {
       console.error('Error logging out:', error);
@@ -209,6 +246,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!session, 
         isLoading,
         userRole: profile?.role ?? null, 
+        subscription,
+        checkSubscription,
         login, 
         register, 
         logout,
