@@ -360,7 +360,7 @@ CREATE TABLE verification_history (
 | 2. Edge Functions | ✅ Completo | validate-cpf, validate-cep, validate-bank-account |
 | 3. Hooks React | ✅ Completo | Todos os hooks de dados implementados |
 | 4. Fase 1 - Estabilização | ✅ Completo | Build OK, dashboard, logo, verificação e-mail |
-| 5. Fase 2 - Marketplace | 🔄 Pendente | Agendamento, pagamento, chat, filtros |
+| 5. Fase 2 - Marketplace | 🔄 Em Progresso | Stripe integrado, assinaturas, checkout |
 | 6. Fase 3 - Expansão | 🔄 Pendente | Avaliações, B2B2C, UX |
 
 ---
