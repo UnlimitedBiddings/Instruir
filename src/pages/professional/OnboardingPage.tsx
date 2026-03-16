@@ -337,6 +337,14 @@ export function OnboardingPage() {
         is_active: true,
         dpvat_paid: false,
         image_url: vehicleData.image_url,
+        renavam: null,
+        chassis: null,
+        vehicle_document_url: null,
+        insurance_company: null,
+        insurance_policy_number: null,
+        insurance_expiry: null,
+        inspection_url: null,
+        inspection_expiry: null,
       });
       setCurrentStep(prev => prev + 1);
     } catch (err) {
