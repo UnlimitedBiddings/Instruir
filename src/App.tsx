@@ -105,7 +105,8 @@ function AppRoutes() {
         <Route path="/instructor/:id" element={<InstructorProfilePage />} />
         <Route path="/school/:id" element={<SchoolProfilePage />} />
 
-        {/* Professional Routes - Redirect old routes to profile */}
+        {/* Professional Routes */}
+        <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/schedule" element={<Navigate to="/profile" replace />} />
         <Route path="/requests" element={<RequestsPage />} />
         <Route path="/earnings" element={<Navigate to="/profile" replace />} />
