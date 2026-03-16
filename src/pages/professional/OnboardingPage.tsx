@@ -372,6 +372,7 @@ export function OnboardingPage() {
         pix_key_type: bankData.pix_key_type || null,
         pix_key: bankData.pix_key || null,
         is_primary: true,
+        proof_url: null,
       });
       setCurrentStep(prev => prev + 1);
     } catch (err) {
