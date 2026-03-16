@@ -20,8 +20,9 @@ import { ExplorePage } from "@/pages/student/ExplorePage";
 import { InstructorProfilePage } from "@/pages/student/InstructorProfilePage";
 import { SchoolProfilePage } from "@/pages/student/SchoolProfilePage";
 
-// Professional Routes
+// Professional Pages
 import { RequestsPage } from "@/pages/instructor/RequestsPage";
+import { OnboardingPage } from "@/pages/professional/OnboardingPage";
 
 // Shared Pages
 import { ProfilePage } from "@/pages/shared/ProfilePage";
