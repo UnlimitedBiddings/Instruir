@@ -23,6 +23,7 @@ import { SchoolProfilePage } from "@/pages/student/SchoolProfilePage";
 // Professional Pages
 import { RequestsPage } from "@/pages/instructor/RequestsPage";
 import { OnboardingPage } from "@/pages/professional/OnboardingPage";
+import { EditProfilePage } from "@/pages/professional/EditProfilePage";
 
 // Shared Pages
 import { ProfilePage } from "@/pages/shared/ProfilePage";
