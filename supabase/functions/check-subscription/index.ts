@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
+import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
@@ -39,7 +39,7 @@ serve(async (req) => {
     if (!user?.email) throw new Error("User not authenticated or email not available");
     logStep("User authenticated", { userId: user.id, email: user.email });
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
     if (customers.data.length === 0) {
@@ -65,10 +65,19 @@ serve(async (req) => {
 
     if (hasActiveSub) {
       const subscription = subscriptions.data[0];
-      subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
-      const priceId = subscription.items.data[0].price.id;
       
-      // Determine plan type based on price ID
+      // Safely handle the period end timestamp
+      try {
+        const periodEnd = subscription.current_period_end;
+        if (typeof periodEnd === 'number' && periodEnd > 0) {
+          subscriptionEnd = new Date(periodEnd * 1000).toISOString();
+        }
+      } catch (e) {
+        logStep("Could not parse period end, continuing without it");
+      }
+      
+      const priceId = subscription.items.data[0]?.price?.id;
+      
       if (priceId === "price_1SzdMxLDYhpSWGaMCtGkGnJc") {
         planType = "monthly";
       } else if (priceId === "price_1SzdOBLDYhpSWGaMzLv3iDxe") {
