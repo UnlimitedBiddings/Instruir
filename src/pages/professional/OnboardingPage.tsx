@@ -5,6 +5,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 import { useProfessionalProfile } from '@/hooks/useProfessionalProfile';
 import { useValidation } from '@/hooks/useValidation';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -24,11 +25,8 @@ import {
   Wallet,
   CheckCircle2,
   Upload,
-  X,
   Loader2,
   Shield,
-  Camera,
-  Search,
 } from 'lucide-react';
 
 const STEPS = [
@@ -40,7 +38,6 @@ const STEPS = [
   { id: 'review', label: 'Revisão', icon: CheckCircle2 },
 ];
 
-// File upload component
 function FileUploadField({ 
   label, 
   accept = "image/*,.pdf", 
@@ -94,14 +91,22 @@ function FileUploadField({
 
 export function OnboardingPage() {
   const navigate = useNavigate();
-  const { user, profile: authProfile, userRole } = useAuth();
+  const { user } = useAuth();
   const { profile: userProfile, updateProfile: updateUserProfile } = useUserProfile();
-  const { profile: profProfile, updateProfile: updateProfProfile, addVehicle, addBankAccount } = useProfessionalProfile();
-  const { isValidating, validateCPF, validateCEP, formatCPF, formatCEP, formatPhone, quickValidateCPF, quickValidateCEP } = useValidation();
+  const { 
+    profile: profProfile, 
+    updateProfile: updateProfProfile, 
+    addVehicle, 
+    addBankAccount,
+    refetch: refetchProf,
+    isLoading: profLoading,
+  } = useProfessionalProfile();
+  const { isValidating, validateCEP, formatCPF, formatCEP, formatPhone, quickValidateCEP } = useValidation();
   const { upload, isUploading } = useDocumentUpload();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const [profCreated, setProfCreated] = useState(false);
 
   // Step 1: Personal Data
   const [personalData, setPersonalData] = useState({
@@ -194,6 +199,7 @@ export function OnboardingPage() {
       }));
     }
     if (profProfile) {
+      setProfCreated(true);
       setPersonalData(prev => ({
         ...prev,
         bio: profProfile.bio || '',
@@ -229,11 +235,11 @@ export function OnboardingPage() {
     if (result.valid && result.data) {
       setPersonalData(prev => ({
         ...prev,
-        address: result.data!.address,
-        neighborhood: result.data!.neighborhood,
-        city: result.data!.city,
-        state: result.data!.state,
-        zip_code: result.data!.cep,
+        address: result.data!.address || prev.address,
+        neighborhood: result.data!.neighborhood || prev.neighborhood,
+        city: result.data!.city || prev.city,
+        state: result.data!.state || prev.state,
+        zip_code: result.data!.cep || prev.zip_code,
       }));
     }
   };
@@ -254,11 +260,51 @@ export function OnboardingPage() {
     }
   };
 
+  // Ensure professional profile exists
+  const ensureProfessionalProfile = async (): Promise<boolean> => {
+    if (profProfile || profCreated) return true;
+    if (!user?.id) return false;
+
+    try {
+      const { data, error } = await supabase
+        .from('professionals')
+        .insert({
+          user_id: user.id,
+          category: personalData.category as any,
+          price_per_hour: parseFloat(personalData.price_per_hour) || 50,
+          bio: personalData.bio || null,
+          city: personalData.city || null,
+          address: personalData.address || null,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        // If already exists, just refetch
+        if (error.code === '23505') {
+          await refetchProf();
+          setProfCreated(true);
+          return true;
+        }
+        throw error;
+      }
+
+      setProfCreated(true);
+      await refetchProf();
+      return true;
+    } catch (err: any) {
+      console.error('Error creating professional profile:', err);
+      toast.error('Erro ao criar perfil profissional');
+      return false;
+    }
+  };
+
   const handleSaveStep = async () => {
     setIsSaving(true);
     try {
       switch (currentStep) {
-        case 0: // Personal
+        case 0: {
+          // Save user profile
           await updateUserProfile({
             name: personalData.name,
             cpf: personalData.cpf,
@@ -273,19 +319,41 @@ export function OnboardingPage() {
             city: personalData.city,
             state: personalData.state,
           });
-          if (profProfile) {
-            await updateProfProfile({
+
+          // Create or update professional profile
+          const created = await ensureProfessionalProfile();
+          if (!created) {
+            toast.error('Erro ao criar perfil profissional');
+            return;
+          }
+
+          // Wait for refetch to complete, then update
+          // Use a small delay to ensure profProfile is available
+          await new Promise(resolve => setTimeout(resolve, 500));
+          await refetchProf();
+          
+          // Update professional data directly via supabase
+          const { error: updateError } = await supabase
+            .from('professionals')
+            .update({
               bio: personalData.bio || null,
-              price_per_hour: parseFloat(personalData.price_per_hour) || 0,
+              price_per_hour: parseFloat(personalData.price_per_hour) || 50,
               category: personalData.category as any,
-              city: personalData.city,
-              address: personalData.address,
-            });
+              city: personalData.city || null,
+              address: personalData.address || null,
+            })
+            .eq('user_id', user!.id);
+
+          if (updateError) {
+            console.error('Error updating professional:', updateError);
           }
           break;
-        case 1: // Documents
-          if (profProfile) {
-            await updateProfProfile({
+        }
+        case 1: {
+          // Documents - update via supabase directly
+          const { error } = await supabase
+            .from('professionals')
+            .update({
               rg: docData.rg || null,
               rg_issuer: docData.rg_issuer || null,
               cnh_number: docData.cnh_number || null,
@@ -294,23 +362,32 @@ export function OnboardingPage() {
               cnh_document_url: docData.cnh_document_url,
               criminal_record_url: docData.criminal_record_url,
               profile_document_url: docData.profile_document_url,
-            });
-          }
+            })
+            .eq('user_id', user!.id);
+          
+          if (error) throw error;
           break;
-        case 3: // Zones
-          if (profProfile) {
-            await updateProfProfile({
+        }
+        case 3: {
+          // Zones
+          const { error } = await supabase
+            .from('professionals')
+            .update({
               service_radius_km: parseFloat(zoneData.service_radius_km) || 10,
               accepts_displacement: zoneData.accepts_displacement,
               displacement_fee_per_km: parseFloat(zoneData.displacement_fee_per_km) || 0,
               cities_served: zoneData.cities_served ? zoneData.cities_served.split(',').map(s => s.trim()).filter(Boolean) : null,
               neighborhoods_served: zoneData.neighborhoods_served ? zoneData.neighborhoods_served.split(',').map(s => s.trim()).filter(Boolean) : null,
-            });
-          }
+            })
+            .eq('user_id', user!.id);
+          
+          if (error) throw error;
           break;
+        }
       }
       setCurrentStep(prev => prev + 1);
     } catch (err) {
+      console.error('Error saving step:', err);
       toast.error('Erro ao salvar dados');
     } finally {
       setIsSaving(false);
@@ -322,32 +399,47 @@ export function OnboardingPage() {
       toast.error('Preencha os campos obrigatórios do veículo');
       return;
     }
+
+    // Get professional ID
+    let professionalId = profProfile?.id;
+    if (!professionalId) {
+      const { data } = await supabase
+        .from('professionals')
+        .select('id')
+        .eq('user_id', user!.id)
+        .single();
+      professionalId = data?.id;
+    }
+
+    if (!professionalId) {
+      toast.error('Perfil profissional não encontrado');
+      return;
+    }
+
     setIsSaving(true);
     try {
-      await addVehicle({
-        plate: vehicleData.plate.toUpperCase(),
-        brand: vehicleData.brand,
-        model: vehicleData.model,
-        year: parseInt(vehicleData.year),
-        color: vehicleData.color,
-        transmission: vehicleData.transmission,
-        has_ac: vehicleData.has_ac,
-        has_dual_controls: vehicleData.has_dual_controls,
-        is_primary: true,
-        is_active: true,
-        dpvat_paid: false,
-        image_url: vehicleData.image_url,
-        renavam: null,
-        chassis: null,
-        vehicle_document_url: null,
-        insurance_company: null,
-        insurance_policy_number: null,
-        insurance_expiry: null,
-        inspection_url: null,
-        inspection_expiry: null,
-      });
+      const { error } = await supabase
+        .from('vehicles')
+        .insert({
+          professional_id: professionalId,
+          plate: vehicleData.plate.toUpperCase(),
+          brand: vehicleData.brand,
+          model: vehicleData.model,
+          year: parseInt(vehicleData.year),
+          color: vehicleData.color || 'Não informado',
+          transmission: vehicleData.transmission,
+          has_ac: vehicleData.has_ac,
+          has_dual_controls: vehicleData.has_dual_controls,
+          is_primary: true,
+          is_active: true,
+          image_url: vehicleData.image_url,
+        });
+
+      if (error) throw error;
+      toast.success('Veículo salvo!');
       setCurrentStep(prev => prev + 1);
-    } catch (err) {
+    } catch (err: any) {
+      console.error('Error saving vehicle:', err);
       toast.error('Erro ao salvar veículo');
     } finally {
       setIsSaving(false);
@@ -359,23 +451,45 @@ export function OnboardingPage() {
       toast.error('Preencha os campos obrigatórios');
       return;
     }
+
+    let professionalId = profProfile?.id;
+    if (!professionalId) {
+      const { data } = await supabase
+        .from('professionals')
+        .select('id')
+        .eq('user_id', user!.id)
+        .single();
+      professionalId = data?.id;
+    }
+
+    if (!professionalId) {
+      toast.error('Perfil profissional não encontrado');
+      return;
+    }
+
     setIsSaving(true);
     try {
-      await addBankAccount({
-        bank_code: bankData.bank_code,
-        bank_name: bankData.bank_name || bankData.bank_code,
-        agency: bankData.agency,
-        account_number: bankData.account_number,
-        account_type: bankData.account_type,
-        holder_name: bankData.holder_name,
-        holder_cpf: bankData.holder_cpf,
-        pix_key_type: bankData.pix_key_type || null,
-        pix_key: bankData.pix_key || null,
-        is_primary: true,
-        proof_url: null,
-      });
+      const { error } = await supabase
+        .from('professional_bank_accounts')
+        .insert({
+          professional_id: professionalId,
+          bank_code: bankData.bank_code,
+          bank_name: bankData.bank_name || bankData.bank_code,
+          agency: bankData.agency,
+          account_number: bankData.account_number,
+          account_type: bankData.account_type,
+          holder_name: bankData.holder_name,
+          holder_cpf: bankData.holder_cpf,
+          pix_key_type: bankData.pix_key_type || null,
+          pix_key: bankData.pix_key || null,
+          is_primary: true,
+        });
+
+      if (error) throw error;
+      toast.success('Conta bancária salva!');
       setCurrentStep(prev => prev + 1);
-    } catch (err) {
+    } catch (err: any) {
+      console.error('Error saving bank:', err);
       toast.error('Erro ao salvar conta bancária');
     } finally {
       setIsSaving(false);
@@ -405,7 +519,6 @@ export function OnboardingPage() {
 
   const handleNext = () => {
     if (currentStep === 2) {
-      // Vehicle step - can skip or save
       if (vehicleData.plate) {
         handleSaveVehicle();
       } else {
@@ -425,11 +538,11 @@ export function OnboardingPage() {
       case 0:
         return personalData.name && personalData.cpf && personalData.phone && personalData.price_per_hour;
       case 1:
-        return true; // Documents are optional at this stage
+        return true;
       case 2:
-        return true; // Vehicle is optional
+        return true;
       case 3:
-        return true; // Zones have defaults
+        return true;
       case 4:
         return bankData.bank_code && bankData.agency && bankData.account_number && bankData.holder_name && bankData.holder_cpf;
       case 5:
@@ -992,7 +1105,6 @@ export function OnboardingPage() {
   );
 }
 
-// Summary card component
 function SummaryCard({ title, items, onEdit }: { 
   title: string; 
   items: { label: string; value: string }[]; 

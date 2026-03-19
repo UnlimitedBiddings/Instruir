@@ -23,6 +23,7 @@ import { SchoolProfilePage } from "@/pages/student/SchoolProfilePage";
 // Professional Pages
 import { RequestsPage } from "@/pages/instructor/RequestsPage";
 import { OnboardingPage } from "@/pages/professional/OnboardingPage";
+import { EditProfilePage } from "@/pages/professional/EditProfilePage";
 
 // Shared Pages
 import { ProfilePage } from "@/pages/shared/ProfilePage";
@@ -107,6 +108,7 @@ function AppRoutes() {
 
         {/* Professional Routes */}
         <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route path="/edit-profile" element={<EditProfilePage />} />
         <Route path="/schedule" element={<Navigate to="/profile" replace />} />
         <Route path="/requests" element={<RequestsPage />} />
         <Route path="/earnings" element={<Navigate to="/profile" replace />} />
