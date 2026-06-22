@@ -1,5 +1,10 @@
 // Map configuration constants
-export const GOOGLE_MAPS_API_KEY = 'AIzaSyA1-NrREEo8bBiDNK_TwpLvTvE9QrDcioo';
+// Note: the key is restricted by HTTP referrer in Google Cloud Console.
+// Prefer setting VITE_GOOGLE_MAPS_API_KEY at build time; the literal below
+// is a publishable, referrer-restricted fallback for local previews.
+export const GOOGLE_MAPS_API_KEY =
+  (import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined) ||
+  'AIzaSyA1-NrREEo8bBiDNK_TwpLvTvE9QrDcioo';
 
 // Guarapari, ES center coordinates
 export const CENTER = { lat: -20.6500, lng: -40.4967 };
