@@ -1,10 +1,16 @@
 import { Instructor, Company } from '@/types';
+import { escapeHtml, safeImageUrl, safeNumber } from './htmlSafety';
 
 export function createInstructorMarkerContent(
-  instructor: Instructor, 
+  instructor: Instructor,
   isSelected: boolean
 ): HTMLDivElement {
   const isVerified = instructor.verified?.cnh && instructor.verified?.criminalRecord;
+
+  const name = escapeHtml(instructor.name);
+  const avatar = escapeHtml(safeImageUrl(instructor.avatar));
+  const price = escapeHtml(safeNumber(instructor.pricePerHour));
+  const rating = escapeHtml(safeNumber(instructor.rating));
 
   const markerContent = document.createElement('div');
   markerContent.innerHTML = `
@@ -24,8 +30,8 @@ export function createInstructorMarkerContent(
                  : '0 8px 32px rgba(0,0,0,0.4)'};
              ">
           <img 
-            src="${instructor.avatar}" 
-            alt="${instructor.name}"
+            src="${avatar}" 
+            alt="${name}"
             class="w-full h-full object-cover"
           />
         </div>
@@ -37,7 +43,7 @@ export function createInstructorMarkerContent(
                font-size: 11px;
                letter-spacing: 0.3px;
              ">
-          R$${instructor.pricePerHour}
+          R$${price}
         </div>
         
         <!-- Verified badge -->
@@ -56,7 +62,7 @@ export function createInstructorMarkerContent(
           <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="#fbbf24">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
           </svg>
-          <span class="text-white font-semibold" style="font-size: 9px;">${instructor.rating}</span>
+          <span class="text-white font-semibold" style="font-size: 9px;">${rating}</span>
         </div>
       </div>
     </div>
@@ -66,6 +72,10 @@ export function createInstructorMarkerContent(
 }
 
 export function createSchoolMarkerContent(school: Company): HTMLDivElement {
+  const name = escapeHtml(school.name);
+  const logo = school.logo ? escapeHtml(safeImageUrl(school.logo)) : '';
+  const rating = escapeHtml(safeNumber(school.rating));
+
   const markerContent = document.createElement('div');
   markerContent.innerHTML = `
     <div class="relative group cursor-pointer transform transition-all duration-300 hover:scale-105">
@@ -82,8 +92,8 @@ export function createSchoolMarkerContent(school: Company): HTMLDivElement {
                border: 3px solid rgba(255,255,255,0.9);
                box-shadow: 0 8px 32px rgba(0,0,0,0.4);
              ">
-          ${school.logo 
-            ? `<img src="${school.logo}" alt="${school.name}" class="w-full h-full object-cover" />`
+          ${logo 
+            ? `<img src="${logo}" alt="${name}" class="w-full h-full object-cover" />`
             : `<svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                 <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                </svg>`
@@ -116,7 +126,7 @@ export function createSchoolMarkerContent(school: Company): HTMLDivElement {
           <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="#fbbf24">
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
           </svg>
-          <span class="text-white font-semibold" style="font-size: 9px;">${school.rating}</span>
+          <span class="text-white font-semibold" style="font-size: 9px;">${rating}</span>
         </div>
       </div>
     </div>
