@@ -89,6 +89,13 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "availability_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "public_professionals"
+            referencedColumns: ["id"]
+          },
         ]
       }
       companies: {
@@ -302,6 +309,13 @@ export type Database = {
             columns: ["professional_id"]
             isOneToOne: false
             referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_bank_accounts_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "public_professionals"
             referencedColumns: ["id"]
           },
         ]
@@ -848,6 +862,13 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "vehicles_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "public_professionals"
+            referencedColumns: ["id"]
+          },
         ]
       }
       verification_history: {
@@ -901,14 +922,188 @@ export type Database = {
             referencedRelation: "professionals"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "verification_history_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: false
+            referencedRelation: "public_professionals"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      public_professionals: {
+        Row: {
+          accepts_displacement: boolean | null
+          background_verified: boolean | null
+          bio: string | null
+          category: Database["public"]["Enums"]["professional_category"] | null
+          cities_served: string[] | null
+          city: string | null
+          cnh_verified: boolean | null
+          company_id: string | null
+          created_at: string | null
+          credentials_verified: boolean | null
+          criminal_record_verified: boolean | null
+          displacement_fee_per_km: number | null
+          experience_years: number | null
+          id: string | null
+          identity_verified: boolean | null
+          neighborhoods_served: string[] | null
+          price_per_hour: number | null
+          provider_type: Database["public"]["Enums"]["provider_type"] | null
+          rating: number | null
+          review_count: number | null
+          service_radius_km: number | null
+          skills: string[] | null
+          specializations: string[] | null
+          total_sessions: number | null
+          updated_at: string | null
+          user_id: string | null
+          vehicle_color: string | null
+          vehicle_has_ac: boolean | null
+          vehicle_image_url: string | null
+          vehicle_inspection_verified: boolean | null
+          vehicle_model: string | null
+          vehicle_transmission:
+            | Database["public"]["Enums"]["transmission_type"]
+            | null
+          vehicle_year: number | null
+        }
+        Insert: {
+          accepts_displacement?: boolean | null
+          background_verified?: boolean | null
+          bio?: string | null
+          category?: Database["public"]["Enums"]["professional_category"] | null
+          cities_served?: string[] | null
+          city?: string | null
+          cnh_verified?: boolean | null
+          company_id?: string | null
+          created_at?: string | null
+          credentials_verified?: boolean | null
+          criminal_record_verified?: boolean | null
+          displacement_fee_per_km?: number | null
+          experience_years?: number | null
+          id?: string | null
+          identity_verified?: boolean | null
+          neighborhoods_served?: string[] | null
+          price_per_hour?: number | null
+          provider_type?: Database["public"]["Enums"]["provider_type"] | null
+          rating?: number | null
+          review_count?: number | null
+          service_radius_km?: number | null
+          skills?: string[] | null
+          specializations?: string[] | null
+          total_sessions?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          vehicle_color?: string | null
+          vehicle_has_ac?: boolean | null
+          vehicle_image_url?: string | null
+          vehicle_inspection_verified?: boolean | null
+          vehicle_model?: string | null
+          vehicle_transmission?:
+            | Database["public"]["Enums"]["transmission_type"]
+            | null
+          vehicle_year?: number | null
+        }
+        Update: {
+          accepts_displacement?: boolean | null
+          background_verified?: boolean | null
+          bio?: string | null
+          category?: Database["public"]["Enums"]["professional_category"] | null
+          cities_served?: string[] | null
+          city?: string | null
+          cnh_verified?: boolean | null
+          company_id?: string | null
+          created_at?: string | null
+          credentials_verified?: boolean | null
+          criminal_record_verified?: boolean | null
+          displacement_fee_per_km?: number | null
+          experience_years?: number | null
+          id?: string | null
+          identity_verified?: boolean | null
+          neighborhoods_served?: string[] | null
+          price_per_hour?: number | null
+          provider_type?: Database["public"]["Enums"]["provider_type"] | null
+          rating?: number | null
+          review_count?: number | null
+          service_radius_km?: number | null
+          skills?: string[] | null
+          specializations?: string[] | null
+          total_sessions?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+          vehicle_color?: string | null
+          vehicle_has_ac?: boolean | null
+          vehicle_image_url?: string | null
+          vehicle_inspection_verified?: boolean | null
+          vehicle_model?: string | null
+          vehicle_transmission?:
+            | Database["public"]["Enums"]["transmission_type"]
+            | null
+          vehicle_year?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_professionals_company"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
+      list_public_professionals: {
+        Args: never
+        Returns: {
+          accepts_displacement: boolean | null
+          background_verified: boolean | null
+          bio: string | null
+          category: Database["public"]["Enums"]["professional_category"] | null
+          cities_served: string[] | null
+          city: string | null
+          cnh_verified: boolean | null
+          company_id: string | null
+          created_at: string | null
+          credentials_verified: boolean | null
+          criminal_record_verified: boolean | null
+          displacement_fee_per_km: number | null
+          experience_years: number | null
+          id: string | null
+          identity_verified: boolean | null
+          neighborhoods_served: string[] | null
+          price_per_hour: number | null
+          provider_type: Database["public"]["Enums"]["provider_type"] | null
+          rating: number | null
+          review_count: number | null
+          service_radius_km: number | null
+          skills: string[] | null
+          specializations: string[] | null
+          total_sessions: number | null
+          updated_at: string | null
+          user_id: string | null
+          vehicle_color: string | null
+          vehicle_has_ac: boolean | null
+          vehicle_image_url: string | null
+          vehicle_inspection_verified: boolean | null
+          vehicle_model: string | null
+          vehicle_transmission:
+            | Database["public"]["Enums"]["transmission_type"]
+            | null
+          vehicle_year: number | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "public_professionals"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
     }
     Enums: {
       professional_category:
