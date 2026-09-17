@@ -129,7 +129,25 @@ export function useProfessionalProfile() {
       }
 
       if (profData) {
-        setProfile(profData);
+        // Sensitive documents live in a separate, owner-only table
+        const { data: docData } = await supabase
+          .from('professional_documents')
+          .select('*')
+          .eq('professional_id', profData.id)
+          .maybeSingle();
+
+        setProfile({
+          ...profData,
+          rg: docData?.rg ?? null,
+          rg_issuer: docData?.rg_issuer ?? null,
+          cnh_number: docData?.cnh_number ?? null,
+          cnh_category: docData?.cnh_category ?? null,
+          cnh_expiry: docData?.cnh_expiry ?? null,
+          cnh_document_url: docData?.cnh_document_url ?? null,
+          criminal_record_url: docData?.criminal_record_url ?? null,
+          profile_document_url: docData?.profile_document_url ?? null,
+          cnpj: docData?.cnpj ?? null,
+        });
 
         // Fetch vehicles
         const { data: vehicleData, error: vehicleError } = await supabase
