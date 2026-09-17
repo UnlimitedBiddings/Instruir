@@ -482,6 +482,13 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_professionals_company"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "public_companies"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -648,6 +655,13 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "service_packages_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "public_companies"
+            referencedColumns: ["id"]
+          },
         ]
       }
       sessions: {
@@ -720,6 +734,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sessions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "public_companies"
             referencedColumns: ["id"]
           },
         ]
@@ -933,6 +954,54 @@ export type Database = {
       }
     }
     Views: {
+      public_companies: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          latitude: number | null
+          logo_url: string | null
+          longitude: number | null
+          name: string | null
+          rating: number | null
+          review_count: number | null
+          type: Database["public"]["Enums"]["professional_category"] | null
+          verified: boolean | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          name?: string | null
+          rating?: number | null
+          review_count?: number | null
+          type?: Database["public"]["Enums"]["professional_category"] | null
+          verified?: boolean | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          latitude?: number | null
+          logo_url?: string | null
+          longitude?: number | null
+          name?: string | null
+          rating?: number | null
+          review_count?: number | null
+          type?: Database["public"]["Enums"]["professional_category"] | null
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
       public_professionals: {
         Row: {
           accepts_displacement: boolean | null
@@ -1053,11 +1122,17 @@ export type Database = {
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "fk_professionals_company"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "public_companies"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Functions: {
-      has_role: { Args: { _role: string; _user_id: string }; Returns: boolean }
       list_public_professionals: {
         Args: never
         Returns: {
