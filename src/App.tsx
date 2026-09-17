@@ -65,6 +65,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+// Returns the safe same-origin relative path stored in ?next=, or the default.
+function postAuthTarget(defaultPath = "/explore") {
+  const next = new URLSearchParams(window.location.search).get("next");
+  if (next && next.startsWith("/") && !next.startsWith("//")) return next;
+  return defaultPath;
+}
+
 function AppRoutes() {
   const { isAuthenticated, isLoading, userRole } = useAuth();
 
@@ -77,17 +84,17 @@ function AppRoutes() {
       {/* Auth Routes */}
       <Route path="/login" element={
         isAuthenticated 
-          ? <Navigate to="/explore" replace />
+          ? <Navigate to={postAuthTarget()} replace />
           : <LoginPage />
       } />
       <Route path="/register" element={
         isAuthenticated 
-          ? <Navigate to="/explore" replace />
+          ? <Navigate to={postAuthTarget()} replace />
           : <RegisterPage />
       } />
       <Route path="/forgot-password" element={
         isAuthenticated 
-          ? <Navigate to="/explore" replace />
+          ? <Navigate to={postAuthTarget()} replace />
           : <ForgotPasswordPage />
       } />
       
