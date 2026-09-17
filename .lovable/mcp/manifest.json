@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "sdk_version": "2.2.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://fgckdrijgcckcukyoank.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "instruir",
+      "version": "0.1.0",
+      "title": "Instruir"
+    },
+    "tools": [
+      {
+        "name": "list_professionals",
+        "title": "Listar profissionais",
+        "description": "Lista profissionais publicamente visíveis na plataforma, com filtros opcionais de categoria, cidade e preço máximo por hora.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "driving_instructor",
+                "language_teacher",
+                "music_teacher",
+                "personal_trainer",
+                "tutor"
+              ],
+              "description": "Categoria do profissional."
+            },
+            "city": {
+              "type": "string",
+              "minLength": 2,
+              "description": "Cidade de atendimento."
+            },
+            "max_price_per_hour": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Preço máximo por hora em BRL."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 20,
+              "description": "Número máximo de resultados."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_my_profile",
+        "title": "Meu perfil",
+        "description": "Retorna o perfil do usuário autenticado, incluindo papéis (aluno, profissional, administrador de escola).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "type": "object",
+          "properties": {}
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_my_sessions",
+        "title": "Minhas aulas",
+        "description": "Lista as aulas do usuário autenticado (como aluno ou profissional), com filtro opcional de status.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "confirmed",
+                "in_progress",
+                "completed",
+                "cancelled"
+              ],
+              "description": "Filtrar por status da aula."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 25,
+              "description": "Número máximo de aulas."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "cancel_session",
+        "title": "Cancelar aula",
+        "description": "Cancela uma aula do usuário autenticado pelo identificador da aula.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "session_id": {
+              "type": "string",
+              "format": "uuid",
+              "description": "Identificador da aula a cancelar."
+            }
+          },
+          "required": [
+            "session_id"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
