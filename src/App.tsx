@@ -14,6 +14,7 @@ import { RegisterPage } from "@/pages/auth/RegisterPage";
 import { ForgotPasswordPage } from "@/pages/auth/ForgotPasswordPage";
 import { VerifyEmailPage } from "@/pages/auth/VerifyEmailPage";
 import { ResetPasswordPage } from "@/pages/auth/ResetPasswordPage";
+import { OAuthConsentPage } from "@/pages/auth/OAuthConsentPage";
 
 // Student Pages
 import { ExplorePage } from "@/pages/student/ExplorePage";
@@ -93,6 +94,9 @@ function AppRoutes() {
       {/* Email Verification & Password Reset (accessible always) */}
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+      {/* OAuth consent for agent integrations (MCP) */}
+      <Route path="/.lovable/oauth/consent" element={<OAuthConsentPage />} />
 
       {/* Protected App Routes */}
       <Route element={
