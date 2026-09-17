@@ -350,10 +350,19 @@ export function OnboardingPage() {
           break;
         }
         case 1: {
-          // Documents - update via supabase directly
-          const { error } = await supabase
+          // Documents live in the private professional_documents table
+          const { data: prof, error: profErr } = await supabase
             .from('professionals')
-            .update({
+            .select('id')
+            .eq('user_id', user!.id)
+            .maybeSingle();
+          if (profErr) throw profErr;
+          if (!prof?.id) throw new Error('Perfil profissional não encontrado');
+
+          const { error } = await supabase
+            .from('professional_documents')
+            .upsert({
+              professional_id: prof.id,
               rg: docData.rg || null,
               rg_issuer: docData.rg_issuer || null,
               cnh_number: docData.cnh_number || null,
@@ -362,9 +371,8 @@ export function OnboardingPage() {
               cnh_document_url: docData.cnh_document_url,
               criminal_record_url: docData.criminal_record_url,
               profile_document_url: docData.profile_document_url,
-            })
-            .eq('user_id', user!.id);
-          
+            }, { onConflict: 'professional_id' });
+
           if (error) throw error;
           break;
         }
