@@ -191,12 +191,39 @@ export function useProfessionalProfile() {
     if (!profile?.id) return { error: 'Perfil não encontrado' };
 
     try {
-      const { error } = await supabase
-        .from('professionals')
-        .update(data)
-        .eq('id', profile.id);
+      // Split marketplace fields from the sensitive document fields
+      const {
+        rg, rg_issuer, cnh_number, cnh_category, cnh_expiry,
+        cnh_document_url, criminal_record_url, profile_document_url, cnpj,
+        ...publicFields
+      } = data;
 
-      if (error) throw error;
+      const documentFields = {
+        rg, rg_issuer, cnh_number, cnh_category, cnh_expiry,
+        cnh_document_url, criminal_record_url, profile_document_url, cnpj,
+      };
+      const hasDocumentFields = Object.values(documentFields).some((v) => v !== undefined);
+
+      if (Object.keys(publicFields).length > 0) {
+        const { error } = await supabase
+          .from('professionals')
+          .update(publicFields)
+          .eq('id', profile.id);
+        if (error) throw error;
+      }
+
+      if (hasDocumentFields) {
+        const cleaned = Object.fromEntries(
+          Object.entries(documentFields).filter(([, v]) => v !== undefined)
+        );
+        const { error } = await supabase
+          .from('professional_documents')
+          .upsert(
+            { professional_id: profile.id, ...cleaned },
+            { onConflict: 'professional_id' }
+          );
+        if (error) throw error;
+      }
 
       setProfile(prev => prev ? { ...prev, ...data } : null);
       toast.success('Perfil atualizado com sucesso!');
