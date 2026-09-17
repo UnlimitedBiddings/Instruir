@@ -232,14 +232,23 @@ export function EditProfilePage() {
     if (!user?.id) return;
     setIsSaving(true);
     try {
-      const { error } = await supabase.from('professionals').update({
+      const { data: prof, error: profErr } = await supabase
+        .from('professionals')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (profErr) throw profErr;
+      if (!prof?.id) throw new Error('Perfil profissional não encontrado');
+
+      const { error } = await supabase.from('professional_documents').upsert({
+        professional_id: prof.id,
         rg: docData.rg || null, rg_issuer: docData.rg_issuer || null,
         cnh_number: docData.cnh_number || null, cnh_category: docData.cnh_category || null,
         cnh_expiry: docData.cnh_expiry || null,
         cnh_document_url: docData.cnh_document_url,
         criminal_record_url: docData.criminal_record_url,
         profile_document_url: docData.profile_document_url,
-      }).eq('user_id', user.id);
+      }, { onConflict: 'professional_id' });
       if (error) throw error;
       toast.success('Documentos atualizados!');
     } catch (err) {
