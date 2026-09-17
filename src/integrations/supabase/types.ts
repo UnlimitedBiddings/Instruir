@@ -320,6 +320,69 @@ export type Database = {
           },
         ]
       }
+      professional_documents: {
+        Row: {
+          cnh_category: string | null
+          cnh_document_url: string | null
+          cnh_expiry: string | null
+          cnh_number: string | null
+          cnpj: string | null
+          created_at: string
+          criminal_record_url: string | null
+          id: string
+          professional_id: string
+          profile_document_url: string | null
+          rg: string | null
+          rg_issuer: string | null
+          updated_at: string
+        }
+        Insert: {
+          cnh_category?: string | null
+          cnh_document_url?: string | null
+          cnh_expiry?: string | null
+          cnh_number?: string | null
+          cnpj?: string | null
+          created_at?: string
+          criminal_record_url?: string | null
+          id?: string
+          professional_id: string
+          profile_document_url?: string | null
+          rg?: string | null
+          rg_issuer?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cnh_category?: string | null
+          cnh_document_url?: string | null
+          cnh_expiry?: string | null
+          cnh_number?: string | null
+          cnpj?: string | null
+          created_at?: string
+          criminal_record_url?: string | null
+          id?: string
+          professional_id?: string
+          profile_document_url?: string | null
+          rg?: string | null
+          rg_issuer?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "professional_documents_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: true
+            referencedRelation: "professionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "professional_documents_professional_id_fkey"
+            columns: ["professional_id"]
+            isOneToOne: true
+            referencedRelation: "public_professionals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       professionals: {
         Row: {
           accepts_displacement: boolean | null
@@ -329,16 +392,10 @@ export type Database = {
           category: Database["public"]["Enums"]["professional_category"]
           cities_served: string[] | null
           city: string | null
-          cnh_category: string | null
-          cnh_document_url: string | null
-          cnh_expiry: string | null
-          cnh_number: string | null
           cnh_verified: boolean | null
-          cnpj: string | null
           company_id: string | null
           created_at: string
           credentials_verified: boolean | null
-          criminal_record_url: string | null
           criminal_record_verified: boolean | null
           displacement_fee_per_km: number | null
           employment_type: string | null
@@ -349,12 +406,9 @@ export type Database = {
           longitude: number | null
           neighborhoods_served: string[] | null
           price_per_hour: number
-          profile_document_url: string | null
           provider_type: Database["public"]["Enums"]["provider_type"] | null
           rating: number | null
           review_count: number | null
-          rg: string | null
-          rg_issuer: string | null
           service_radius_km: number | null
           service_zones: string[] | null
           skills: string[] | null
@@ -380,16 +434,10 @@ export type Database = {
           category: Database["public"]["Enums"]["professional_category"]
           cities_served?: string[] | null
           city?: string | null
-          cnh_category?: string | null
-          cnh_document_url?: string | null
-          cnh_expiry?: string | null
-          cnh_number?: string | null
           cnh_verified?: boolean | null
-          cnpj?: string | null
           company_id?: string | null
           created_at?: string
           credentials_verified?: boolean | null
-          criminal_record_url?: string | null
           criminal_record_verified?: boolean | null
           displacement_fee_per_km?: number | null
           employment_type?: string | null
@@ -400,12 +448,9 @@ export type Database = {
           longitude?: number | null
           neighborhoods_served?: string[] | null
           price_per_hour: number
-          profile_document_url?: string | null
           provider_type?: Database["public"]["Enums"]["provider_type"] | null
           rating?: number | null
           review_count?: number | null
-          rg?: string | null
-          rg_issuer?: string | null
           service_radius_km?: number | null
           service_zones?: string[] | null
           skills?: string[] | null
@@ -431,16 +476,10 @@ export type Database = {
           category?: Database["public"]["Enums"]["professional_category"]
           cities_served?: string[] | null
           city?: string | null
-          cnh_category?: string | null
-          cnh_document_url?: string | null
-          cnh_expiry?: string | null
-          cnh_number?: string | null
           cnh_verified?: boolean | null
-          cnpj?: string | null
           company_id?: string | null
           created_at?: string
           credentials_verified?: boolean | null
-          criminal_record_url?: string | null
           criminal_record_verified?: boolean | null
           displacement_fee_per_km?: number | null
           employment_type?: string | null
@@ -451,12 +490,9 @@ export type Database = {
           longitude?: number | null
           neighborhoods_served?: string[] | null
           price_per_hour?: number
-          profile_document_url?: string | null
           provider_type?: Database["public"]["Enums"]["provider_type"] | null
           rating?: number | null
           review_count?: number | null
-          rg?: string | null
-          rg_issuer?: string | null
           service_radius_km?: number | null
           service_zones?: string[] | null
           skills?: string[] | null
